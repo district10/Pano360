@@ -159,6 +159,10 @@ public class PanoViewWrapper {
 
         touchHelper = new TouchHelper(statusHelper, mRenderer);
         // init 完毕
+
+        if (true) {
+
+        }
     }
 
     public void onPause(){
