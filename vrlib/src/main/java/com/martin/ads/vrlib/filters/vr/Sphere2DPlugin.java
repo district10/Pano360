@@ -125,7 +125,7 @@ public class Sphere2DPlugin extends AbsFilter {
             System.arraycopy(rotationMatrix, 0, modelMatrix, 0, 16);
             orientationHelper.revertRotation(modelMatrix);
             // Log.d(TAG, "orientation: "+modelMatrix[0]);
-        } else{
+        } else {
             // 触屏用这个
             // mDeltaX, mDeltaY 初始化为 -90, 0
             Matrix.rotateM(modelMatrix, 0, mDeltaY, 1.0f, 0.0f, 0.0f); // 上下的移动对应 x 轴旋转
@@ -143,10 +143,7 @@ public class Sphere2DPlugin extends AbsFilter {
 
         // TODO
         // ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-        if (_textureId >= 0) {
-            // use this texture
-            textureId = _textureId;
-        }
+        // Log.d(TAG, "current texture id: "+textureId);
         // texture
         TextureUtils.bindTexture2D(
                 textureId,            // texture
@@ -154,7 +151,7 @@ public class Sphere2DPlugin extends AbsFilter {
                 glSphereProgram.getTextureSamplerHandle(),
                 0
         );
-        Log.w(TAG, "sphere2d plugin binded texture: "+textureId);
+        // Log.w(TAG, "sphere2d plugin binded texture: "+textureId);
 
         onPreDrawElements();
 
@@ -178,10 +175,11 @@ public class Sphere2DPlugin extends AbsFilter {
 
     @Override
     public void onFilterChanged(int width, int height) {
-        super.onFilterChanged(width,height);
-        ratio=(float)width/ height;
-        for(AbsHotspot hotSpot: hotspotList)
-            hotSpot.onFilterChanged(width,height);
+        super.onFilterChanged(width, height);
+        ratio = (float)width/ height;
+        for(AbsHotspot hotSpot : hotspotList) {
+            hotSpot.onFilterChanged(width, height);
+        }
     }
 
     private void initMatrix() {

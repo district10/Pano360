@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.Toast;
@@ -121,7 +122,10 @@ public class HomeActivity extends AppCompatActivity {
                 .setVideoHotspotPath(videoHotspotPath);
         if(useDefaultActivity) {
             // 默认用这个
-            config.startEmbeddedActivity(this);
+            // config.startEmbeddedActivity(this);
+            Intent intent = new Intent(this, PanoPlayerActivity.class);
+            intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, config);
+            startActivityForResult(intent, 2);
         } else {
             Intent intent = new Intent(this, DemoWithGLSurfaceView.class);
             intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, config);
@@ -141,10 +145,17 @@ public class HomeActivity extends AppCompatActivity {
             } else {
                 // 这个新建的 activity 会通过 intent 把输出返回到上一个 activity：setResult(RESULT_OK, data);
                 // 然后通过 finish() 返回
-                String path = data.getStringExtra("TEST");
-                Toast.makeText(HomeActivity.this, "TEST: "+path+"\nfilePath: "+filePath, Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == 2) {
+            // todo
+            filePath = data.getStringExtra("NEW_TEXTURE");
+            if (!filePath.isEmpty()) {
+                Toast.makeText(this, "renew: "+filePath, Toast.LENGTH_LONG).show();
+                Log.d(TAG, "shit: okay");
+                start(useDefaultActivity);
+            } else {
+                Log.d(TAG, "shit: not okay");
             }
         }
     }
-
 }

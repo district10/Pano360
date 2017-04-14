@@ -18,24 +18,18 @@ public class FilterGroup extends AbsFilter {
     private int[] frameBuffers = null;
     private int[] frameBufferTextures = null;
     private List<AbsFilter> filters;
-    private AbsFilter mainFilter = null;
+    private List<AbsFilter> mainFilters;
+    private int mainFilterIndex = 0;
     private boolean isRunning;
 
     public FilterGroup() {
         super();
         filters = new ArrayList<AbsFilter>();
-    }
-
-    public AbsFilter getMainFilter() { return mainFilter; }
-    public void setMainFilter(AbsFilter filter) {
-        mainFilter = filter;
+        mainFilters = new ArrayList<AbsFilter>();
     }
 
     @Override
     public void init() {
-        if (mainFilter != null) {
-            mainFilter.init();
-        }
         for (AbsFilter filter : filters) {
             filter.init();
         }
@@ -149,23 +143,34 @@ public class FilterGroup extends AbsFilter {
         }
     }
 
+    public void addMainFilter(final AbsFilter filter) {
+        mainFilters.add(filter);
+    }
+    public void switchMainFilter() {
+        if (!filters.isEmpty() && !mainFilters.isEmpty()) {
+            mainFilterIndex = ++mainFilterIndex%mainFilters.size();
+            filters.set(0, mainFilters.get(mainFilterIndex));
+            onFilterChanged(surfaceWidth, surfaceHeight);
+        }
+    }
+
     public void addFilter(final AbsFilter filter){
-        if (filter==null) return;
+        if (filter == null) { return; }
         //If one filter is added multiple times,
         //it will execute the same times
         //BTW: Pay attention to the order of execution
         if (!isRunning){
             filters.add(filter);
-        }
-        else
+        } else {
             addPreDrawTask(new Runnable() {
-            @Override
-            public void run() {
-                filter.init();
-                filters.add(filter);
-                onFilterChanged(surfaceWidth, surfaceHeight);
-            }
-        });
+                @Override
+                public void run() {
+                    filter.init();
+                    filters.add(filter);
+                    onFilterChanged(surfaceWidth, surfaceHeight);
+                }
+            });
+        };
     }
 
     public void randomSwitchFilter(Context context){

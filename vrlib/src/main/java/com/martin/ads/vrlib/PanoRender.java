@@ -51,9 +51,10 @@ public class PanoRender implements GLSurfaceView.Renderer {
     private PanoRender() { }
 
     public void switchTexture() {
-        BitmapTexture bitmapTexture = new BitmapTexture();
-        bitmapTexture.loadWithFile(statusHelper.getContext(), "images/texture2.jpg");
-        spherePlugin._textureId = bitmapTexture.getImageTextureId();
+        // filterGroup.switchMainFilter();
+        // BitmapTexture bitmapTexture = new BitmapTexture();
+        // bitmapTexture.loadWithFile(statusHelper.getContext(), "images/texture2.jpg");
+        // spherePlugin._textureId = bitmapTexture.getImageTextureId();
     }
 
     public PanoRender init() {
@@ -70,13 +71,18 @@ public class PanoRender implements GLSurfaceView.Renderer {
                     statusHelper.getContext(),
                     filePath,
                     AdjustingMode.ADJUSTING_MODE_STRETCH);
+            firstPassFilter = firstPassFilter1;
+            // these should be inited
             firstPassFilter2 = new DrawImageFilter(
                     statusHelper.getContext(),
                     "images/texture2.jpg",
                     AdjustingMode.ADJUSTING_MODE_STRETCH);
-            firstPassFilter = firstPassFilter1;
+            firstPassFilter2.init();
         }
-        // filterGroup.addFilter(firstPassFilter);
+        filterGroup.addFilter(firstPassFilter);
+        // main filters
+        filterGroup.addMainFilter(firstPassFilter1);
+        filterGroup.addMainFilter(firstPassFilter2);
 
         if(filterMode == FILTER_MODE_BEFORE_PROJECTION) {
             //the code is becoming more and more messy ┗( T﹏T )┛

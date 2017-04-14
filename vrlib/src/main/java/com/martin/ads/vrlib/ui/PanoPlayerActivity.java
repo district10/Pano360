@@ -1,6 +1,7 @@
 package com.martin.ads.vrlib.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -108,15 +109,20 @@ public class PanoPlayerActivity extends Activity {
             @Override
             public void requestDebug1() {
                 // clear spots
-                Toast.makeText(PanoPlayerActivity.this, "Clear spots", Toast.LENGTH_SHORT).show();
-                mPanoViewWrapper.clearHotSpot();
+                // Toast.makeText(PanoPlayerActivity.this, "Clear spots", Toast.LENGTH_SHORT).show();
+                // mPanoViewWrapper.clearHotSpot();
+                // shit
                 // TODO change to texture1
             }
             @Override
             public void requestDebug2() {
                 // TODO change to texture2
-                mPanoViewWrapper.getRenderer().switchTexture();
-                Toast.makeText(PanoPlayerActivity.this, "switched texture", Toast.LENGTH_SHORT).show();
+                // mPanoViewWrapper.getRenderer().switchTexture();
+                Intent data = new Intent();
+                data.putExtra("NEW_TEXTURE", "images/texture2.jpg");
+                // 把包含了信息的 intent 传回
+                setResult(RESULT_OK, data);
+                finish();
             }
             @Override
             public void requestScreenshot() {

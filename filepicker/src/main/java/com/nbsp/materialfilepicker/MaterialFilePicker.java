@@ -32,7 +32,6 @@ public class MaterialFilePicker {
     public MaterialFilePicker() {
     }
 
-
     /**
      * Specifies activity, which will be used to
      * start file picker
