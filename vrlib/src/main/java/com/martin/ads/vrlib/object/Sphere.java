@@ -14,7 +14,6 @@ import static com.martin.ads.vrlib.utils.ShaderUtils.checkGlError;
  */
 public class Sphere {
 
-
     private static final int sPositionDataSize = 3;
     private static final int sTextureCoordinateDataSize = 2;
 
@@ -22,7 +21,6 @@ public class Sphere {
     private FloatBuffer mTexCoordinateBuffer;
     private ShortBuffer indexBuffer;
     private int mNumIndices;
-
 
     /**
      * modified from hzqiujiadi on 16/1/8.
@@ -46,27 +44,25 @@ public class Sphere {
         float[] texcoords = new float[numPoint * 2];
         short[] indices = new short[numPoint * 6];
 
-        //map texture 2d-3d
+        // map texture 2d-3d
         int t = 0, v = 0;
         for(r = 0; r < rings + 1; r++) {
             for(s = 0; s < sectors + 1; s++) {
                 x = (float) (Math.cos(2*PI * s * S) * Math.sin( PI * r * R ));
                 y = (float) Math.sin( -PI_2 + PI * r * R );
                 z = (float) (Math.sin(2*PI * s * S) * Math.sin( PI * r * R ));
-
                 texcoords[t++] = s*S;
                 texcoords[t++] = r*R;
-
                 vertexs[v++] = x * radius;
                 vertexs[v++] = y * radius;
                 vertexs[v++] = z * radius;
             }
         }
 
-        //glDrawElements
+        // glDrawElements
         int counter = 0;
         int sectorsPlusOne = sectors + 1;
-        for(r = 0; r < rings; r++){
+        for(r = 0; r < rings; r++) {
             for(s = 0; s < sectors; s++) {
                 indices[counter++] = (short) (r * sectorsPlusOne + s);       //(a)
                 indices[counter++] = (short) ((r+1) * sectorsPlusOne + (s));    //(b)
@@ -78,26 +74,21 @@ public class Sphere {
         }
 
         // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                vertexs.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect( vertexs.length * 4 ); // (# of coordinate values * 4 bytes per float)
         bb.order(ByteOrder.nativeOrder());
         FloatBuffer vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(vertexs);
         vertexBuffer.position(0);
 
         // initialize vertex byte buffer for shape coordinates
-        ByteBuffer cc = ByteBuffer.allocateDirect(
-                texcoords.length * 4);
+        ByteBuffer cc = ByteBuffer.allocateDirect( texcoords.length * 4 );
         cc.order(ByteOrder.nativeOrder());
         FloatBuffer texBuffer = cc.asFloatBuffer();
         texBuffer.put(texcoords);
         texBuffer.position(0);
 
         // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 2 bytes per short)
-                indices.length * 2);
+        ByteBuffer dlb = ByteBuffer.allocateDirect( indices.length * 2); // (# of coordinate values * 2 bytes per short)
         dlb.order(ByteOrder.nativeOrder());
         indexBuffer = dlb.asShortBuffer();
         indexBuffer.put(indices);
@@ -107,7 +98,6 @@ public class Sphere {
         mVerticesBuffer=vertexBuffer;
         mNumIndices=indices.length;
     }
-
 
     public void uploadVerticesBuffer(int positionHandle){
         FloatBuffer vertexBuffer = getVerticesBuffer();
@@ -124,18 +114,15 @@ public class Sphere {
         FloatBuffer textureBuffer = getTexCoordinateBuffer();
         if (textureBuffer == null) return;
         textureBuffer.position(0);
-
         GLES20.glVertexAttribPointer(textureCoordinateHandle, sTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, textureBuffer);
         checkGlError("glVertexAttribPointer maTextureHandle");
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
         checkGlError("glEnableVertexAttribArray maTextureHandle");
     }
 
-
     public FloatBuffer getVerticesBuffer() {
         return mVerticesBuffer;
     }
-
     public FloatBuffer getTexCoordinateBuffer() {
         return mTexCoordinateBuffer;
     }

@@ -18,7 +18,7 @@ public class Pano360ConfigBundle implements Serializable{
     private boolean removeHotspot;
 
     public Pano360ConfigBundle() {
-        filePath=null;
+        filePath = null;
         videoHotspotPath = null;
         imageModeEnabled = false;
         planeModeEnabled = false;
@@ -33,6 +33,7 @@ public class Pano360ConfigBundle implements Serializable{
     public void startEmbeddedActivity(Context context) {
         // 用当前 activity 打开 pano player activity
         Intent intent = new Intent(context, PanoPlayerActivity.class);
+        // configBundle = (Pano360ConfigBundle)getIntent().getSerializableExtra(CONFIG_BUNDLE);
         intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, this);
         context.startActivity(intent);
     }

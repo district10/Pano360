@@ -1,9 +1,11 @@
 package com.martin.ads.pano360demo;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
@@ -36,6 +38,14 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 强制横屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // 强制全屏
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         setContentView(R.layout.activity_main);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
 
@@ -75,6 +85,7 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                     case 3:
                         // SHIT
+                        // 图片就是这么传进来的
                         filePath = "images/texture1.jpg";
                         imageModeEnabled = true;
                         break;
@@ -103,7 +114,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void start(boolean useDefaultActivity){
         Pano360ConfigBundle config = Pano360ConfigBundle.NewInstance()
-                .setFilePath(filePath)
+                .setFilePath(filePath) // 图片路径
                 .setImageModeEnabled(imageModeEnabled)
                 .setPlaneModeEnabled(planeModeEnabled)
                 .setRemoveHotspot(false)

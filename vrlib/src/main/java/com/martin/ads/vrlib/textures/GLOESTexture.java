@@ -1,10 +1,10 @@
 package com.martin.ads.vrlib.textures;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.martin.ads.vrlib.constant.GLEtc;
 import com.martin.ads.vrlib.utils.ShaderUtils;
-
 
 /**
  * Created by Ads on 2016/11/19.
@@ -23,17 +23,19 @@ public class GLOESTexture {
 
     //only call once for a single video texture (camera, media_decoder,etc.)
     public void loadTexture(){
-        if(textureLoaded) return;
+        if(textureLoaded) {
+            return;
+        } else {
+            textureLoaded = true;
+        }
         int[] textures = new int[1];
         GLES20.glGenTextures(1, textures, 0);
         textureId = textures[0];
+        Log.d(TAG, "Video textureId: "+textureId);
         GLES20.glBindTexture(GLEtc.GL_TEXTURE_EXTERNAL_OES, textureId);
         ShaderUtils.checkGlError("glBindTexture mTextureID");
-        GLES20.glTexParameterf(GLEtc.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_NEAREST);
-        GLES20.glTexParameterf(GLEtc.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
-        textureLoaded=true;
+        GLES20.glTexParameterf(GLEtc.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GLEtc.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
     }
 
     public void deleteTexture(){

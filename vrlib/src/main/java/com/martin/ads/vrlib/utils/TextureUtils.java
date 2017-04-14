@@ -16,7 +16,7 @@ import com.martin.ads.vrlib.constant.GLEtc;
 public class TextureUtils {
     private static final String TAG = "TextureUtils";
 
-    public static void bindTexture2D(int textureId,int activeTextureID,int handle,int idx) {
+    public static void bindTexture2D(int textureId, int activeTextureID, int handle, int idx) {
         if (textureId != GLEtc.NO_TEXTURE) {
 
             // 如果有 Texture2D，那么激活 activeTextureID 这个 frame（一个 Texture2D 可以有很多 Frames）
@@ -50,13 +50,13 @@ public class TextureUtils {
 
     public static int loadTextureFromResources(Context context, int resourceId,int imageSize[]){
         return getTextureFromBitmap(
-                BitmapUtils.loadBitmapFromRaw(context,resourceId),
+                BitmapUtils.loadBitmapFromRaw(context, resourceId),
                 imageSize);
     }
 
     public static int loadTextureFromAssets(Context context, String filePath,int imageSize[]){
         return getTextureFromBitmap(
-                BitmapUtils.loadBitmapFromAssets(context,filePath),
+                BitmapUtils.loadBitmapFromAssets(context, filePath),
                 imageSize);
     }
 
@@ -64,12 +64,12 @@ public class TextureUtils {
     public static int getTextureFromBitmap(Bitmap bitmap,int imageSize[]){
         final int[] textureObjectIds=new int[1];
         GLES20.glGenTextures(1,textureObjectIds,0);
-        if (textureObjectIds[0]==0){
+        if (textureObjectIds[0] == 0) {
             Log.d(TAG,"Failed at glGenTextures");
             return 0;
         }
 
-        if (bitmap==null){
+        if (bitmap == null) {
             Log.d(TAG,"Failed at decoding bitmap");
             GLES20.glDeleteTextures(1,textureObjectIds,0);
             return 0;

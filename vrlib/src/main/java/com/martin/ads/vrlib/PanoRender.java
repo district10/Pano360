@@ -2,6 +2,7 @@ package com.martin.ads.vrlib;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import com.martin.ads.vrlib.constant.AdjustingMode;
 import com.martin.ads.vrlib.filters.base.AbsFilter;
@@ -11,6 +12,7 @@ import com.martin.ads.vrlib.filters.base.OESFilter;
 import com.martin.ads.vrlib.filters.base.OrthoFilter;
 import com.martin.ads.vrlib.filters.base.PassThroughFilter;
 import com.martin.ads.vrlib.filters.vr.Sphere2DPlugin;
+import com.martin.ads.vrlib.textures.BitmapTexture;
 import com.martin.ads.vrlib.utils.BitmapUtils;
 import com.martin.ads.vrlib.utils.StatusHelper;
 
@@ -33,6 +35,8 @@ public class PanoRender implements GLSurfaceView.Renderer {
     private Sphere2DPlugin spherePlugin;
     private FilterGroup filterGroup;
     private AbsFilter firstPassFilter;
+    private AbsFilter firstPassFilter1;
+    private AbsFilter firstPassFilter2;
     private int width,height;
 
     private boolean imageMode;
@@ -44,36 +48,49 @@ public class PanoRender implements GLSurfaceView.Renderer {
 
     private String filePath;
 
-    private PanoRender() {
+    private PanoRender() { }
 
+    public void switchTexture() {
+        BitmapTexture bitmapTexture = new BitmapTexture();
+        bitmapTexture.loadWithFile(statusHelper.getContext(), "images/texture2.jpg");
+        spherePlugin._textureId = bitmapTexture.getImageTextureId();
     }
 
-    public PanoRender init(){
-        saveImg=false;
-        filterGroup=new FilterGroup();
-        customizedFilters=new FilterGroup();
+    public PanoRender init() {
+        saveImg = false;
+        filterGroup = new FilterGroup();
+        customizedFilters = new FilterGroup();
 
         if(!imageMode) {
             firstPassFilter = new OESFilter(statusHelper.getContext());
-        }else{
-            firstPassFilter=new DrawImageFilter(
+        } else {
+            // image here!
+            Log.w(TAG, "firstPassFilter: "+filePath);
+            firstPassFilter1 = new DrawImageFilter(
                     statusHelper.getContext(),
                     filePath,
                     AdjustingMode.ADJUSTING_MODE_STRETCH);
+            firstPassFilter2 = new DrawImageFilter(
+                    statusHelper.getContext(),
+                    "images/texture2.jpg",
+                    AdjustingMode.ADJUSTING_MODE_STRETCH);
+            firstPassFilter = firstPassFilter1;
         }
-        filterGroup.addFilter(firstPassFilter);
-        if(filterMode==FILTER_MODE_BEFORE_PROJECTION){
+        // filterGroup.addFilter(firstPassFilter);
+
+        if(filterMode == FILTER_MODE_BEFORE_PROJECTION) {
             //the code is becoming more and more messy ┗( T﹏T )┛
             filterGroup.addFilter(customizedFilters);
         }
-        spherePlugin=new Sphere2DPlugin(statusHelper);
+        // 这里
+        spherePlugin = new Sphere2DPlugin(statusHelper);
         if(!planeMode){
             filterGroup.addFilter(spherePlugin);
-        }else{
-            //TODO: this should be adjustable
-            orthoFilter=new OrthoFilter(statusHelper,
-                    AdjustingMode.ADJUSTING_MODE_FIT_TO_SCREEN);
-            if(panoMediaPlayerWrapper!=null){
+        } else {
+            // planeMode 正射投影
+            // TODO: this should be adjustable
+            orthoFilter = new OrthoFilter(statusHelper, AdjustingMode.ADJUSTING_MODE_FIT_TO_SCREEN);
+            if(panoMediaPlayerWrapper != null) {
                 panoMediaPlayerWrapper.setVideoSizeCallback(new PanoMediaPlayerWrapper.VideoSizeCallback() {
                     @Override
                     public void notifyVideoSizeChanged(int width, int height) {
@@ -83,24 +100,25 @@ public class PanoRender implements GLSurfaceView.Renderer {
                 filterGroup.addFilter(orthoFilter);
             }
         }
-        if(filterMode==FILTER_MODE_AFTER_PROJECTION){
+        if(filterMode == FILTER_MODE_AFTER_PROJECTION) {
             filterGroup.addFilter(customizedFilters);
         }
-        if(filterMode!=FILTER_MODE_NONE){
+        if(filterMode != FILTER_MODE_NONE) {
             customizedFilters.addFilter(new PassThroughFilter(statusHelper.getContext()));
         }
         return this;
     }
     @Override
-    public void onSurfaceCreated(GL10 glUnused,EGLConfig config) {
+    public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         filterGroup.init();
-        if(!imageMode)
+        if(!imageMode) {
             panoMediaPlayerWrapper.setSurface(((OESFilter)firstPassFilter).getGlOESTexture().getTextureId());
+        }
     }
-
 
     @Override
     public void onDrawFrame(GL10 glUnused) {
+        // clear
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glClear( GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
@@ -115,7 +133,7 @@ public class PanoRender implements GLSurfaceView.Renderer {
 
         if (saveImg){
             BitmapUtils.sendImage(width,height,statusHelper.getContext());
-            saveImg=false;
+            saveImg = false;
         }
 
         GLES20.glDisable(GLES20.GL_CULL_FACE);

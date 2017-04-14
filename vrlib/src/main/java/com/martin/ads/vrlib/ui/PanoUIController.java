@@ -22,12 +22,13 @@ import java.util.TimerTask;
  * Created by Ads on 2016/11/10.
  */
 public class PanoUIController {
-
     private RelativeLayout controlToolbar;
     private ToggleButton gyroBtn;             // 陀螺仪控制按钮
     private ToggleButton dualScreenBtn;       // 单双屏
     private ImageView backBtn;
     private ImageView screenshotBtn;
+    private ImageView debug1Btn;
+    private ImageView debug2Btn;
 
     private RelativeLayout progressToolbar;
     private SeekBar processSeekBar;                    // 播放进度条
@@ -61,15 +62,17 @@ public class PanoUIController {
 
     private void initView(){
         //controlToolbar
-        gyroBtn= (ToggleButton) controlToolbar.findViewById(R.id.gyro_btn);
-        dualScreenBtn= (ToggleButton) controlToolbar.findViewById(R.id.dualScreen_btn);
-        backBtn= (ImageView) controlToolbar.findViewById(R.id.back_btn);
-        screenshotBtn= (ImageView) controlToolbar.findViewById(R.id.screenshot_btn);
+        debug1Btn = (ImageView)controlToolbar.findViewById(R.id.requestDebug1);
+        debug2Btn = (ImageView)controlToolbar.findViewById(R.id.requestDebug2);
+        gyroBtn = (ToggleButton)controlToolbar.findViewById(R.id.gyro_btn);
+        dualScreenBtn = (ToggleButton)controlToolbar.findViewById(R.id.dualScreen_btn);
+        backBtn = (ImageView)controlToolbar.findViewById(R.id.back_btn);
+        screenshotBtn = (ImageView)controlToolbar.findViewById(R.id.screenshot_btn);
         //progressToolbar
-        processSeekBar= (SeekBar) progressToolbar.findViewById(R.id.progress_seek_bar);
-        currTimeText = (TextView) progressToolbar.findViewById(R.id.txt_time_curr);
-        totalTimeText = (TextView) progressToolbar.findViewById(R.id.txt_time_total);
-        playBtn= (ToggleButton) progressToolbar.findViewById(R.id.play_btn);
+        processSeekBar = (SeekBar)progressToolbar.findViewById(R.id.progress_seek_bar);
+        currTimeText = (TextView)progressToolbar.findViewById(R.id.txt_time_curr);
+        totalTimeText = (TextView)progressToolbar.findViewById(R.id.txt_time_total);
+        playBtn= (ToggleButton)progressToolbar.findViewById(R.id.play_btn);
 
         seekBarTouched=false;
         processSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -87,10 +90,24 @@ public class PanoUIController {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 uiCallback.playerSeekTo(seekBar.getProgress());
-                seekBarTouched=false;
+                seekBarTouched = false;
                 startHideControllerTimer();
             }
         });
+
+        debug1Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uiCallback.requestDebug1();
+            }
+        });
+        debug2Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uiCallback.requestDebug2();
+            }
+        });
+
         gyroBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +176,10 @@ public class PanoUIController {
         return visible;
     }
 
-    public interface UICallback{
+    public interface UICallback {
+        // by tzx
+        void requestDebug1();
+        void requestDebug2();
         // UI Toolbox 上提供的函数
         void requestScreenshot();
         void requestFinish();
@@ -174,7 +194,7 @@ public class PanoUIController {
 
     public void setInfo(){
         processSeekBar.setProgress(0);
-        int duration=uiCallback.getPlayerDuration();
+        int duration = uiCallback.getPlayerDuration();
         processSeekBar.setMax(duration);
 
         lengthStr = UIUtils.getShowTime(duration);
@@ -209,23 +229,24 @@ public class PanoUIController {
     };
 
     public void startHideControllerTimer(){
-        if (!autoHideController) return;
+        if (!autoHideController) { return; }
         cancelHideControllerTimer();
-        hideControllerTimer=new Timer();
-        hideControllerTimerTask=new HideControllerTimerTask();
-        hideControllerTimer.schedule(hideControllerTimerTask,2666);
+        hideControllerTimer = new Timer();
+        hideControllerTimerTask = new HideControllerTimerTask();
+        // task, delay
+        hideControllerTimer.schedule(hideControllerTimerTask, 2000);
     }
 
-    public void cancelHideControllerTimer(){
-        if (hideControllerTimer!=null) {
+    public void cancelHideControllerTimer() {
+        if (hideControllerTimer != null) {
             hideControllerTimer.cancel();
         }
-        if (hideControllerTimerTask!=null) {
+        if (hideControllerTimerTask != null) {
             hideControllerTimerTask.cancel();
         }
     }
 
-    public class HideControllerTimerTask extends TimerTask{
+    public class HideControllerTimerTask extends TimerTask {
         @Override
         public void run() {
             ((Activity)context).runOnUiThread(new Runnable() {
@@ -237,10 +258,8 @@ public class PanoUIController {
         }
     }
 
-    public boolean isAutoHideController() {
-        return autoHideController;
-    }
-
+    // auto hide?
+    public boolean isAutoHideController() { return autoHideController; }
     public void setAutoHideController(boolean autoHideController) {
         this.autoHideController = autoHideController;
     }

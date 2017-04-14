@@ -21,9 +21,9 @@ public class PassThroughFilter extends AbsFilter {
     protected float[] projectionMatrix = new float[16];
 
     public PassThroughFilter(Context context) {
-        this.context=context;
-        glPassThroughProgram=new GLPassThroughProgram(context);
-        plane =new Plane(true);
+        this.context = context;
+        glPassThroughProgram = new GLPassThroughProgram(context);
+        plane = new Plane(true);
     }
 
     @Override

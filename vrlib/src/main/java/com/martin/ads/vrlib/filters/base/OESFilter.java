@@ -25,16 +25,15 @@ public class OESFilter extends AbsFilter{
     private float[] mSTMatrix = new float[16];
 
     public OESFilter(Context context) {
-        plane =new Plane(true);
-        glOESProgram=new GLOESProgram(context);
-        glOESTexture=new GLOESTexture();
+        plane = new Plane(true);
+        glOESProgram = new GLOESProgram(context);
+        glOESTexture = new GLOESTexture();
         Matrix.setIdentityM(mSTMatrix, 0);
     }
 
     @Override
     public void init() {
         glOESProgram.create();
-
         glOESTexture.loadTexture();
     }
 

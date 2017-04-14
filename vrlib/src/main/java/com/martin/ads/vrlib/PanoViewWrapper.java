@@ -59,22 +59,25 @@ public class PanoViewWrapper {
     }
 
     public PanoViewWrapper setConfig(Pano360ConfigBundle configBundle){
-        filePath=configBundle.getFilePath();
-        videoHotspotPath=configBundle.getVideoHotspotPath();
-        planeMode=configBundle.isPlaneModeEnabled();
-        imageMode=configBundle.isImageModeEnabled();
+        filePath = configBundle.getFilePath();
+        videoHotspotPath = configBundle.getVideoHotspotPath();
+        planeMode = configBundle.isPlaneModeEnabled();
+        imageMode = configBundle.isImageModeEnabled();
         return this;
     }
 
     private void init(Context context, Uri uri) {
+        // @@SHIT
         // OpenGL ES 2
         glSurfaceView.setEGLContextClientVersion(2);
 
         // 专门用来记录各个播放器的状态
         statusHelper = new StatusHelper(context);
+
         if(!imageMode){
             mPnoVideoPlayer = new PanoMediaPlayerWrapper();
             mPnoVideoPlayer.setStatusHelper(statusHelper);
+            // 打开视频
             if (uri.toString().startsWith("http")) {
                 mPnoVideoPlayer.openRemoteFile(uri.toString());
             } else {
@@ -91,6 +94,7 @@ public class PanoViewWrapper {
             mPnoVideoPlayer.prepare();
         }
 
+        // opengl 的部分
         mRenderer = PanoRender.newInstance()
                 .setStatusHelper(statusHelper)
                 .setPanoMediaPlayerWrapper(mPnoVideoPlayer)
@@ -140,7 +144,6 @@ public class PanoViewWrapper {
         );
 
         mRenderer.getSpherePlugin().setHotspotList(hotspotList);
-
         glSurfaceView.setRenderer(mRenderer);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 

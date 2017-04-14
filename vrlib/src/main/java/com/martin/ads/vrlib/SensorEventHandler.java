@@ -71,7 +71,7 @@ public class SensorEventHandler implements SensorEventListener {
 
     }
 
-    public void setSensorHandlerCallback(SensorHandlerCallback sensorHandlerCallback){
+    public void setSensorHandlerCallback(SensorHandlerCallback sensorHandlerCallback) {
         this.sensorHandlerCallback=sensorHandlerCallback;
     }
 

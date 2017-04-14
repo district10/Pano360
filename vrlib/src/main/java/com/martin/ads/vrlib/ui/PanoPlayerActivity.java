@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.martin.ads.vrlib.PanoMediaPlayerWrapper;
 import com.martin.ads.vrlib.PanoViewWrapper;
@@ -70,12 +71,14 @@ public class PanoPlayerActivity extends Activity {
         // if image enabled, show loading..., else, show
         UIUtils.setImageViewLoadingAnimationVisibility(mImageViewLoading, !configBundle.isImageModeEnabled());
         // 控制的部分就是页面上下两个控件（组）
+        // TODO: 添加新的控件（左/右侧）
         mPanoUIController = new PanoUIController(
                 (RelativeLayout)findViewById(R.id.player_toolbar_control),
                 (RelativeLayout)findViewById(R.id.player_toolbar_progress),
                 this, configBundle.isImageModeEnabled());
 
         TextView title = (TextView)findViewById(R.id.video_title);
+
         String header = Uri.parse(configBundle.getFilePath()).getLastPathSegment();
         title.setText(header.isEmpty()? "NULL TITLE" : header);
         Log.d(TAG, "header: "+header);
@@ -98,7 +101,23 @@ public class PanoPlayerActivity extends Activity {
             }
         });
         mPanoUIController.setAutoHideController(true);
+
+        // 界面上的控件的回调函数
         mPanoUIController.setUiCallback(new PanoUIController.UICallback() {
+            // callbacks!
+            @Override
+            public void requestDebug1() {
+                // clear spots
+                Toast.makeText(PanoPlayerActivity.this, "Clear spots", Toast.LENGTH_SHORT).show();
+                mPanoViewWrapper.clearHotSpot();
+                // TODO change to texture1
+            }
+            @Override
+            public void requestDebug2() {
+                // TODO change to texture2
+                mPanoViewWrapper.getRenderer().switchTexture();
+                Toast.makeText(PanoPlayerActivity.this, "switched texture", Toast.LENGTH_SHORT).show();
+            }
             @Override
             public void requestScreenshot() {
                 mPanoViewWrapper.getTouchHelper().shotScreen();

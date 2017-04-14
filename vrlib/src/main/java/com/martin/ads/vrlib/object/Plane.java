@@ -49,9 +49,11 @@ public class Plane {
 
     public void uploadTexCoordinateBuffer(int textureCoordinateHandle){
         FloatBuffer textureBuffer = getTexCoordinateBuffer();
-        if (textureBuffer == null) return;
+        if (textureBuffer == null) {
+            return;
+        }
         textureBuffer.position(0);
-
+        // index, size, type, normalized, stride, ptr
         GLES20.glVertexAttribPointer(textureCoordinateHandle, 2, GLES20.GL_FLOAT, false, 0, textureBuffer);
         ShaderUtils.checkGlError("glVertexAttribPointer maTextureHandle");
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);

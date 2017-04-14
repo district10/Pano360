@@ -32,10 +32,11 @@ public class OrthoFilter extends AbsFilter {
 
     public OrthoFilter(StatusHelper statusHelper,int adjustingMode) {
         this.statusHelper=statusHelper;
-        glPassThroughProgram=new GLPassThroughProgram(statusHelper.getContext());
-        plane =new Plane(true);
+        glPassThroughProgram = new GLPassThroughProgram(statusHelper.getContext());
+        plane = new Plane(true);
         Matrix.setIdentityM(projectionMatrix,0);
-        this.adjustingMode=adjustingMode;
+        // ADJUSTING_MODE_FIT_TO_SCREEN
+        this.adjustingMode = adjustingMode;
     }
 
     @Override

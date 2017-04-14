@@ -73,27 +73,30 @@ public class OrientationHelper {
         }
     }
 
-    public void revertRotation(float []modelMatrix){
-        //the default order of euler angles is ZXY
-        //Applying these three intrinsic rotations in azimuth, pitch and roll order transforms
-        //identity matrix to the rotation matrix given in input R
-        if(lockAxisMode==LOCK_MODE_NONE
-                && ignoreRotationMode==IGNORE_ROTATION_NONE) return;
-        if(ignoreRotationMode!=0){
-            Matrix.setIdentityM(tmp,0);
-            if((ignoreRotationMode & IGNORE_ROTATION_AXIS_Z) ==0){
+    public void revertRotation(float []modelMatrix) {
+        // the default order of euler angles is ZXY
+        // Applying these three intrinsic rotations in azimuth, pitch and roll order transforms
+        // identity matrix to the rotation matrix given in input R
+        if(lockAxisMode == LOCK_MODE_NONE && ignoreRotationMode == IGNORE_ROTATION_NONE) {
+            return;
+        }
+        if(ignoreRotationMode != 0) {
+            Matrix.setIdentityM(tmp, 0);
+            if((ignoreRotationMode & IGNORE_ROTATION_AXIS_Z) == 0) {
                 Matrix.rotateM(tmp, 0, -currentRotation[0], 0.0f, 0.0f, 1.0f);
             }
             //axis X have Gimbal lock
-            if((ignoreRotationMode & IGNORE_ROTATION_AXIS_X) ==0){
+            if((ignoreRotationMode & IGNORE_ROTATION_AXIS_X) == 0) {
                 Matrix.rotateM(tmp, 0, -currentRotation[1], 1.0f, 0.0f, 0.0f);
             }
             if((ignoreRotationMode & IGNORE_ROTATION_AXIS_Y) ==0) {
                 Matrix.rotateM(tmp, 0, currentRotation[2], 0.0f, 1.0f, 0.0f);
             }
-            System.arraycopy(tmp,0,modelMatrix,0,16);
-            Matrix.transposeM(tmp,0,modelMatrix,0);
-            SensorUtils.getOrientationFromRotationMatrix(tmp,currentRotation);
+            // modelMatrix = tmp
+            System.arraycopy(tmp,0, modelMatrix, 0, 16);
+            // tmp = trans(modelMatrix)
+            Matrix.transposeM(tmp, 0, modelMatrix, 0);
+            SensorUtils.getOrientationFromRotationMatrix(tmp, currentRotation);
             convertToDegrees(currentRotation);
         }
 
