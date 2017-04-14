@@ -24,18 +24,20 @@ public class ImageHotspot extends AbsHotspot {
 
     private ImageHotspot(Context context) {
         super(context);
-        imagePlane =new Plane(false);
-        bitmapTexture=new BitmapTexture();
-        glPassThroughProgram=new GLPassThroughProgram(context);
+        imagePlane = new Plane(false);
+        bitmapTexture = new BitmapTexture();
+        glPassThroughProgram = new GLPassThroughProgram(context);
     }
 
     @Override
     public void init() {
         super.init();
         glPassThroughProgram.create();
-        if(imagePath!=null)
-            bitmapTexture.loadWithFile(context,imagePath);
-        else bitmapTexture.loadBitmap(bitmap);
+        if(imagePath != null) {
+            bitmapTexture.loadWithFile(context, imagePath);
+        } else {
+            bitmapTexture.loadBitmap(bitmap);
+        }
 
         MatrixUtils.updateProjection(
                 bitmapTexture.getImageWidth(),
@@ -48,16 +50,21 @@ public class ImageHotspot extends AbsHotspot {
 
     @Override
     public void onDrawFrame(int textureId) {
+        // 这是什么鬼……
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         glPassThroughProgram.use();
-        TextureUtils.bindTexture2D(bitmapTexture.getImageTextureId(), GLES20.GL_TEXTURE1,glPassThroughProgram.getTextureSamplerHandle(),1);
+        // public static void bindTexture2D(int i,int j,int uvSampler,int idx)
+        // 把 纹理【i】 绑定到 frame 【j】, （并指定为 texture 2d）然后指定 sampler，然后配置 sampler
+        TextureUtils.bindTexture2D(bitmapTexture.getImageTextureId(), GLES20.GL_TEXTURE1, glPassThroughProgram.getTextureSamplerHandle(), 1);
         imagePlane.uploadTexCoordinateBuffer(glPassThroughProgram.getTextureCoordinateHandle());
         imagePlane.uploadVerticesBuffer(glPassThroughProgram.getPositionHandle());
-        updateMatrix();
+        // 更新 mvp 矩阵，位姿和投影
+        update_MVP_Matrix();
+        // 把 MVP 矩阵的值通过 handle 传入 shader
         GLES20.glUniformMatrix4fv(glPassThroughProgram.getMVPMatrixHandle(), 1, false, mMVPMatrix, 0);
         imagePlane.draw();
-        GLES20.glDisable(GLES20.GL_BLEND);
+        // GLES20.glDisable(GLES20.GL_BLEND);
     }
 
     @Override
@@ -70,11 +77,7 @@ public class ImageHotspot extends AbsHotspot {
         return this;
     }
 
-    /**
-     * if you have set imagePath, the bitmap will not be used.
-     * @param imagePath
-     * @return
-     */
+    // if you have set imagePath, the bitmap will not be used
     public ImageHotspot setImagePath(String imagePath) {
         this.imagePath = imagePath;
         return this;

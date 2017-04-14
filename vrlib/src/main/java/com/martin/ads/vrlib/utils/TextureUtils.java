@@ -16,10 +16,26 @@ import com.martin.ads.vrlib.constant.GLEtc;
 public class TextureUtils {
     private static final String TAG = "TextureUtils";
 
-    public static void bindTexture2D(int textureId,int activeTextureID,int handle,int idx){
+    public static void bindTexture2D(int textureId,int activeTextureID,int handle,int idx) {
         if (textureId != GLEtc.NO_TEXTURE) {
+
+            // 如果有 Texture2D，那么激活 activeTextureID 这个 frame（一个 Texture2D 可以有很多 Frames）
+            // 这里有解释： http://stackoverflow.com/questions/14231391/what-is-the-function-of-glactivetexture-and-gl-texture0-in-opengl
+
+            //  >   If I imagine that the GL_TEXTURE_2D is a picture's frame hangging on the wall
+            //  >   and textureId is the real picture,
+            //  Actually a very good analogy :)
+            //
+            //  >   so, what GL_TEXTURE0 and glActiveTexture are?
+            //  Think about a wall with 【multiple picture frames】,
+            //  the first frame being labeled 【GL_TEXTURE0】,
+            //  the second 【GL_TEXTURE1】 and so on.
+            //  其实就是一个一个的 frame 啊。
+
             GLES20.glActiveTexture(activeTextureID);
+            // 这个 frame 是 2d texture
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+            // sampler 从 frame 里面提取像素
             GLES20.glUniform1i(handle, idx);
         }
     }

@@ -160,6 +160,7 @@ public class PanoUIController {
     }
 
     public interface UICallback{
+        // UI Toolbox 上提供的函数
         void requestScreenshot();
         void requestFinish();
         void changeDisPlayMode();

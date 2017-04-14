@@ -4,22 +4,27 @@ import android.content.res.Resources;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.widget.Toast;
 
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.ui.PanoUIController;
 import com.martin.ads.vrlib.utils.StatusHelper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Created by Ads on 2016/11/7.
  */
 public class TouchHelper {
+    public static final String TAG = "TouchHelper";
     private GestureDetector gestureDetector;
     private StatusHelper statusHelper;
     private PanoRender mRenderer;
     private PanoUIController panoUIController;
     private ScaleGestureDetector scaleGestureDetector;
-    //modified from Asha
-    //hzqiujiadi ashqalcn@gmail.com
+    // modified from Asha
+    // hzqiujiadi ashqalcn@gmail.com
     private static final float sDensity =  Resources.getSystem().getDisplayMetrics().density;
     private static final float sDamping = 0.2f;
 
@@ -30,22 +35,30 @@ public class TouchHelper {
     }
 
     private void init(){
-        gestureDetector=new GestureDetector(statusHelper.getContext(),new GestureDetector.SimpleOnGestureListener(){
+        gestureDetector = new GestureDetector(statusHelper.getContext(), new GestureDetector.SimpleOnGestureListener(){
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (panoUIController!=null){
-                    if (panoUIController.isVisible()) panoUIController.hide();
-                    else panoUIController.show();
+                // 单击显示/隐藏上面的 UIController
+                if (panoUIController != null) {
+                    if (panoUIController.isVisible()) {
+                        panoUIController.hide();
+                    } else {
+                        panoUIController.show();
+                    }
                 }
+                // TODO: POI click, raycast
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                if (statusHelper.getPanoInteractiveMode()==PanoMode.TOUCH){
+                // 触屏移动
+                if (statusHelper.getPanoInteractiveMode() == PanoMode.TOUCH) {
                     mRenderer.getSpherePlugin().setDeltaX(mRenderer.getSpherePlugin().getDeltaX() + distanceX / sDensity * sDamping);
                     mRenderer.getSpherePlugin().setDeltaY(mRenderer.getSpherePlugin().getDeltaY() + distanceY / sDensity * sDamping);
+                    // String info = e1.toString() + ",\n" + e2.toString() + ",\n" + Float.toString(distanceX) + ",\n" + Float.toString(distanceY);
+                    // Toast.makeText(statusHelper.getContext(), info, Toast.LENGTH_SHORT).show();
                 }
                 return super.onScroll(e1, e2, distanceX, distanceY);
             }

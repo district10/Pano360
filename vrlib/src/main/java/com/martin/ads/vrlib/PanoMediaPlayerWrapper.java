@@ -25,7 +25,8 @@ public class PanoMediaPlayerWrapper implements
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnVideoSizeChangedListener,
         MediaPlayer.OnInfoListener,
-        MediaPlayer.OnBufferingUpdateListener{
+        MediaPlayer.OnBufferingUpdateListener
+{
     public static String TAG = "PanoMediaPlayerWrapper";
 
     private StatusHelper statusHelper;
@@ -50,8 +51,8 @@ public class PanoMediaPlayerWrapper implements
         mMediaPlayer.setOnBufferingUpdateListener(this);
     }
 
-    public void setRenderCallBack(PanoViewWrapper.RenderCallBack renderCallBack){
-        this.renderCallBack=renderCallBack;
+    public void setRenderCallBack(PanoViewWrapper.RenderCallBack renderCallBack) {
+        this.renderCallBack = renderCallBack;
     }
 
     public void setSurface(int mTextureID){
@@ -86,11 +87,12 @@ public class PanoMediaPlayerWrapper implements
     }
 
     public void setStatusHelper(StatusHelper statusHelper){
-        this.statusHelper=statusHelper;
+        this.statusHelper = statusHelper;
+        // 拿到这个 helper，就可以查看/修改状态乐
     }
 
     public void prepare(){
-        if (statusHelper.getPanoStatus()==PanoStatus.IDLE || statusHelper.getPanoStatus()==PanoStatus.STOPPED){
+        if (statusHelper.getPanoStatus() == PanoStatus.IDLE || statusHelper.getPanoStatus()==PanoStatus.STOPPED) {
             mMediaPlayer.prepareAsync();
         }
     }
@@ -119,21 +121,25 @@ public class PanoMediaPlayerWrapper implements
         }
     }
 
-    public void stop(){
-        PanoStatus panoStatus=statusHelper.getPanoStatus();
-        if (panoStatus==PanoStatus.PLAYING
-                || panoStatus==PanoStatus.PREPARED
-                || panoStatus==PanoStatus.PAUSED
-                || panoStatus==PanoStatus.PAUSED_BY_USER){
+    public void stop() {
+        PanoStatus panoStatus = statusHelper.getPanoStatus();
+        if (false
+                || panoStatus == PanoStatus.PLAYING
+                || panoStatus == PanoStatus.PREPARED
+                || panoStatus == PanoStatus.PAUSED
+                || panoStatus == PanoStatus.PAUSED_BY_USER
+        ){
             mMediaPlayer.stop();
             statusHelper.setPanoStatus(PanoStatus.STOPPED);
         }
     }
 
     public void releaseResource(){
-        if(mMediaPlayer!=null){
+        if(mMediaPlayer != null){
             mMediaPlayer.setSurface(null);
-            if (mSurfaceTexture!=null) mSurfaceTexture=null;
+            if (mSurfaceTexture != null) {
+                mSurfaceTexture = null;
+            }
             stop();
             mMediaPlayer.release();
         }
@@ -154,8 +160,9 @@ public class PanoMediaPlayerWrapper implements
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        // call the callback function, 在 Java 里面，用 interface 来做 function pointer / functor 之类的工作
         renderCallBack.renderImmediately();
-        if (playerCallback!=null){
+        if (playerCallback != null) {
             playerCallback.updateProgress();
         }
     }
@@ -163,7 +170,7 @@ public class PanoMediaPlayerWrapper implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         statusHelper.setPanoStatus(PanoStatus.PREPARED);
-        if (playerCallback!=null){
+        if (playerCallback != null) {
             playerCallback.updateInfo();
         }
         start();
@@ -208,18 +215,18 @@ public class PanoMediaPlayerWrapper implements
         return false;
     }
 
-    public interface PlayerCallback{
+    // a class with three interfaces
+    public interface PlayerCallback {
         void updateProgress();
         void updateInfo();
         void requestFinish();
     }
-
     public void setPlayerCallback(PlayerCallback playerCallback) {
         this.playerCallback = playerCallback;
     }
 
-    interface VideoSizeCallback{
-        void notifyVideoSizeChanged(int width,int height);
+    interface VideoSizeCallback {
+        void notifyVideoSizeChanged(int width, int height);
     }
 
     public void setVideoSizeCallback(VideoSizeCallback videoSizeCallback) {

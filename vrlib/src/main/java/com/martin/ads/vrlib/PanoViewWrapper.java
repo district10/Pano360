@@ -6,8 +6,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
-import android.os.Environment;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.martin.ads.vrlib.constant.PanoMode;
@@ -25,8 +23,13 @@ import java.util.List;
 
 
 public class PanoViewWrapper {
-
     public static String TAG = "PanoViewWrapper";
+
+    // it's a type (class), must implement a function called 'renderImmediately'
+    public interface RenderCallBack {
+        void renderImmediately();
+    }
+
     private PanoRender mRenderer;
     private PanoMediaPlayerWrapper mPnoVideoPlayer;
     private StatusHelper statusHelper;
@@ -42,12 +45,16 @@ public class PanoViewWrapper {
     private List<AbsHotspot> hotspotList;
 
     private PanoViewWrapper(Context context) {
-        this.context=context;
+        this.context = context;
+    }
+
+    public static PanoViewWrapper with(Context context) {
+        return new PanoViewWrapper(context);
     }
 
     public PanoViewWrapper init(){
-        Uri uri=Uri.parse(filePath);
-        init(context,uri);
+        Uri uri = Uri.parse(filePath);
+        init(context, uri);
         return this;
     }
 
@@ -59,18 +66,22 @@ public class PanoViewWrapper {
         return this;
     }
 
-    private void init(Context context, Uri uri){
+    private void init(Context context, Uri uri) {
+        // OpenGL ES 2
         glSurfaceView.setEGLContextClientVersion(2);
 
-        statusHelper=new StatusHelper(context);
-
+        // 专门用来记录各个播放器的状态
+        statusHelper = new StatusHelper(context);
         if(!imageMode){
             mPnoVideoPlayer = new PanoMediaPlayerWrapper();
             mPnoVideoPlayer.setStatusHelper(statusHelper);
-            if (uri.toString().startsWith("http"))
+            if (uri.toString().startsWith("http")) {
                 mPnoVideoPlayer.openRemoteFile(uri.toString());
-            else mPnoVideoPlayer.setMediaPlayerFromUri(uri);
+            } else {
+                mPnoVideoPlayer.setMediaPlayerFromUri(uri);
+            }
             mPnoVideoPlayer.setRenderCallBack(new PanoViewWrapper.RenderCallBack() {
+                // callback 是一个 interface，里面只有这一个回调函数
                 @Override
                 public void renderImmediately() {
                     glSurfaceView.requestRender();
@@ -89,41 +100,41 @@ public class PanoViewWrapper {
                 .setFilterMode(PanoRender.FILTER_MODE_AFTER_PROJECTION)
                 .init();
 
-        hotspotList =new ArrayList<>();
-
-        if(videoHotspotPath!=null && !videoHotspotPath.isEmpty()){
+        hotspotList = new ArrayList<>();
+        if(videoHotspotPath != null && !videoHotspotPath.isEmpty()){
+            // 视频
             hotspotList.add(VideoHotspot.with(statusHelper.getContext())
                     .setPositionOrientation(
-                            PositionOrientation.newInstance()
+                            PositionOrientation.NewInstance()
                                     .setX(-7.8f).setY(1.2f).setAngleY(-90)
                     )
                     .setUri(Uri.parse(videoHotspotPath))
                     .setAssumedScreenSize(2.0f,1.0f)
             );
-        }else{
+        } else {
+            // 图像
             hotspotList.add(ImageHotspot.with(statusHelper.getContext())
                     .setPositionOrientation(
-                            PositionOrientation.newInstance()
+                            PositionOrientation.NewInstance()
                                     .setY(15).setAngleX(90).setAngleY(-90)
                     )
-                    .setBitmap( TextImageGenerator.newInstance()
+                    .setBitmap( TextImageGenerator.NewInstance()
                             .setPadding(25)
                             .setTextColor(Color.parseColor("#FFCE54"))
                             .setBackgroundColor(Color.parseColor("#22000000"))
-                            .setTypeface(Typeface.createFromAsset(
-                                    statusHelper.getContext().getAssets(),
-                                    "fonts/font_26.ttf")
-                            )
+                            // .setTypeface(Typeface.MONOSPACE) // Typeface.createFromAsset(statusHelper.getContext().getAssets(),"fonts/font_26.ttf")
+                            .setTypeface(Typeface.createFromAsset(statusHelper.getContext().getAssets(),"fonts/font_26.ttf"))
                             .setTextSize(55)
-                            .addTextToImage("I'm a text hotspot~")
+                            .addTextToImage("这是一个 Text 热点（hotspot）\n就是所谓的 POI（Point of Interest）")
                     )
             );
         }
 
-        hotspotList.add(ImageHotspot.with(statusHelper.getContext())
+        hotspotList.add(ImageHotspot.with(statusHelper.getContext()) // 创建一个 hotspot
                 .setPositionOrientation(
-                        PositionOrientation.newInstance()
-                                .setY(-15).setAngleX(-90).setAngleY(-90)
+                        PositionOrientation.NewInstance()
+                                // 正下方
+                                .setY(-15).setAngleX(-90) // .setAngleY(-90)
                 )
                 .setImagePath("imgs/hotspot_logo.png")
         );
@@ -133,51 +144,52 @@ public class PanoViewWrapper {
         glSurfaceView.setRenderer(mRenderer);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-        //使得onTouch能够监听ACTION_DOWN以外的事件
-        //也可以写return panoVideoView.handleTouchEvent(event) || true;
+        //使得 onTouch 能够监听 ACTION_DOWN 以外的事件
+        // 也可以写 return panoVideoView.handleTouchEvent(event) || true;
         glSurfaceView.setClickable(true);
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             glSurfaceView.setPreserveEGLContextOnPause(true);
         }
 
         statusHelper.setPanoDisPlayMode(PanoMode.DUAL_SCREEN);
         statusHelper.setPanoInteractiveMode(PanoMode.MOTION);
 
-        touchHelper=new TouchHelper(statusHelper,mRenderer);
-
+        touchHelper = new TouchHelper(statusHelper, mRenderer);
+        // init 完毕
     }
 
     public void onPause(){
         glSurfaceView.onPause();
-        if(mPnoVideoPlayer!=null && statusHelper.getPanoStatus()== PanoStatus.PLAYING){
+        if(mPnoVideoPlayer != null && statusHelper.getPanoStatus() == PanoStatus.PLAYING) {
             mPnoVideoPlayer.pause();
         }
-        for(AbsHotspot hotspot:hotspotList){
+        // for (int i = 0; i < hotspotList.size(); i++) { }
+        for (AbsHotspot hotspot : hotspotList) {
             hotspot.notifyOnPause();
         }
     }
 
     public void onResume() {
         glSurfaceView.onResume();
-        if (mPnoVideoPlayer!=null){
-            if(statusHelper.getPanoStatus()==PanoStatus.PAUSED){
+        if (mPnoVideoPlayer != null) {
+            if(statusHelper.getPanoStatus() == PanoStatus.PAUSED) {
                 mPnoVideoPlayer.start();
             }
         }
-        for(AbsHotspot hotspot:hotspotList){
+        for(AbsHotspot hotspot : hotspotList) {
             hotspot.notifyOnResume();
         }
     }
 
-    public void releaseResources(){
-        for(AbsHotspot hotspot:hotspotList){
+    public void releaseResources() {
+        for(AbsHotspot hotspot : hotspotList) {
             hotspot.notifyOnDestroy();
         }
-        if(mPnoVideoPlayer!=null){
+        if(mPnoVideoPlayer != null) {
             mPnoVideoPlayer.releaseResource();
-            mPnoVideoPlayer=null;
+            mPnoVideoPlayer = null;
         }
-        if(mRenderer.getSpherePlugin()!=null){
+        if(mRenderer.getSpherePlugin() != null) {
             mRenderer.getSpherePlugin().getSensorEventHandler().releaseResources();
         }
     }
@@ -194,10 +206,6 @@ public class PanoViewWrapper {
         return statusHelper;
     }
 
-    public interface RenderCallBack{
-        void renderImmediately();
-    }
-
     public boolean handleTouchEvent(MotionEvent event) {
         return touchHelper.handleTouchEvent(event);
     }
@@ -211,20 +219,18 @@ public class PanoViewWrapper {
         return this;
     }
 
-    public boolean clearHotSpot(){
-        if(hotspotList ==null) return false;
+    public boolean clearHotSpot() {
+        if(hotspotList == null) {
+            return false;
+        }
         hotspotList.clear();
         return true;
     }
 
     //TODO:add real interface to control hot spot
     // & head pose control
-    public PanoViewWrapper removeDefaultHotSpot(){
+    public PanoViewWrapper removeDefaultHotSpot() {
         clearHotSpot();
         return this;
-    }
-
-    public static PanoViewWrapper with(Context context){
-        return new PanoViewWrapper(context);
     }
 }

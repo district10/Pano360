@@ -21,17 +21,19 @@ public class Plane {
     private FloatBuffer mVerticesBuffer;
     private FloatBuffer mTexCoordinateBuffer;
     private final float TRIANGLES_DATA_CW[] = {
-            -1.0f, -1.0f, 0f, //LD
-            -1.0f, 1.0f, 0f,  //LU
-            1.0f, -1.0f, 0f,  //RD
-            1.0f, 1.0f, 0f    //RU
+            -1.0f, -1.0f, 0f, // LD
+            -1.0f,  1.0f, 0f, // LU
+             1.0f, -1.0f, 0f, // RD
+             1.0f,  1.0f, 0f  // RU
     };
 
     public Plane(boolean isInGroup) {
-        mVerticesBuffer = BufferUtils.getFloatBuffer(TRIANGLES_DATA_CW,0);
-        if (isInGroup)
-            mTexCoordinateBuffer = BufferUtils.getFloatBuffer(PlaneTextureRotationUtils.getRotation(Rotation.NORMAL, false, true), 0);
-        else mTexCoordinateBuffer = BufferUtils.getFloatBuffer(PlaneTextureRotationUtils.TEXTURE_NO_ROTATION,0);
+        mVerticesBuffer = BufferUtils.AsFloatBuffer(TRIANGLES_DATA_CW, 0);
+        if (isInGroup) {
+            mTexCoordinateBuffer = BufferUtils.AsFloatBuffer(PlaneTextureRotationUtils.getRotation(Rotation.NORMAL, false, true), 0);
+        } else {
+            mTexCoordinateBuffer = BufferUtils.AsFloatBuffer(PlaneTextureRotationUtils.TEXTURE_NO_ROTATION, 0);
+        }
     }
 
     public void uploadVerticesBuffer(int positionHandle){
@@ -75,6 +77,7 @@ public class Plane {
     }
 
     public void draw() {
+        // mode, first, count
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 
@@ -84,16 +87,19 @@ public class Plane {
         for(int i=0;i<temp.length;i++){
             temp[i]*=scalingFactor;
         }
-        mVerticesBuffer = BufferUtils.getFloatBuffer(temp,0);
+        mVerticesBuffer = BufferUtils.AsFloatBuffer(temp,0);
         return this;
     }
 
-    public Plane resetTrianglesDataWithRect(RectF rectF){
-        TRIANGLES_DATA_CW[0]=rectF.left; TRIANGLES_DATA_CW[1]=rectF.bottom;
-        TRIANGLES_DATA_CW[3]=rectF.left; TRIANGLES_DATA_CW[4]=rectF.top;
-        TRIANGLES_DATA_CW[6]=rectF.right; TRIANGLES_DATA_CW[7]=rectF.bottom;
-        TRIANGLES_DATA_CW[9]=rectF.right; TRIANGLES_DATA_CW[10]=rectF.top;
-        mVerticesBuffer = BufferUtils.getFloatBuffer(TRIANGLES_DATA_CW,0);
+    public Plane resetTrianglesDataWithRect(RectF rectF) {
+        // 2  |  3
+        // ---+---
+        // 1  |  4
+        TRIANGLES_DATA_CW[0] = rectF.left;  TRIANGLES_DATA_CW[1]  = rectF.bottom;
+        TRIANGLES_DATA_CW[3] = rectF.left;  TRIANGLES_DATA_CW[4]  = rectF.top;
+        TRIANGLES_DATA_CW[6] = rectF.right; TRIANGLES_DATA_CW[7]  = rectF.bottom;
+        TRIANGLES_DATA_CW[9] = rectF.right; TRIANGLES_DATA_CW[10] = rectF.top;
+        mVerticesBuffer = BufferUtils.AsFloatBuffer(TRIANGLES_DATA_CW, 0);
         return this;
     }
 

@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -27,55 +28,72 @@ import com.martin.ads.vrlib.utils.UIUtils;
 //FIXME:looks so lame.
 public class PanoPlayerActivity extends Activity {
 
-    public static final String CONFIG_BUNDLE = "configBundle";
+    public static final String TAG = "PanoPlayerActivity";
 
+    public static final String CONFIG_BUNDLE = "configBundle";
     private PanoUIController mPanoUIController;
     private PanoViewWrapper mPanoViewWrapper;
-    private ImageView mImgBufferAnim;
+    private ImageView mImageViewLoading;
     private Pano360ConfigBundle configBundle;
 
+    // bundle 是啥？
+    // 就跟 Qt 的 QVariant 类似，
+    // 就是泛型的 map：A mapping from String keys to various {@link Parcelable} values.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制横屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // 强制全屏
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
-                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // 主界面上有：
+        // - 上面：control bars
+        // - 下面：进度条
+        // - 整个：gl viewer
         setContentView(R.layout.player_activity_layout);
-
         init();
     }
 
     private void init(){
-        configBundle= (Pano360ConfigBundle) getIntent().getSerializableExtra(CONFIG_BUNDLE);
-        if(configBundle==null){
-            configBundle=Pano360ConfigBundle.newInstance();
+        // 获取打包了的配置
+        configBundle = (Pano360ConfigBundle)getIntent().getSerializableExtra(CONFIG_BUNDLE);
+        if(configBundle == null) {
+            configBundle = Pano360ConfigBundle.NewInstance();
         }
 
-        findViewById(R.id.img_full_screen).setVisibility(configBundle.isWindowModeEnabled() ? View.VISIBLE : View.GONE);
+        // 从来没有显示过……
+        findViewById(R.id.fullScreen).setVisibility(configBundle.isWindowModeEnabled() ? View.VISIBLE : View.GONE);
 
-        mImgBufferAnim = (ImageView) findViewById(R.id.activity_imgBuffer);
-        UIUtils.setBufferVisibility(mImgBufferAnim, !configBundle.isImageModeEnabled());
+        mImageViewLoading = (ImageView)findViewById(R.id.activity_imgBuffer);
+        // if image enabled, show loading..., else, show
+        UIUtils.setImageViewLoadingAnimationVisibility(mImageViewLoading, !configBundle.isImageModeEnabled());
+        // 控制的部分就是页面上下两个控件（组）
         mPanoUIController = new PanoUIController(
                 (RelativeLayout)findViewById(R.id.player_toolbar_control),
                 (RelativeLayout)findViewById(R.id.player_toolbar_progress),
                 this, configBundle.isImageModeEnabled());
 
-        TextView title = (TextView) findViewById(R.id.video_title);
-        title.setText(Uri.parse(configBundle.getFilePath()).getLastPathSegment());
+        TextView title = (TextView)findViewById(R.id.video_title);
+        String header = Uri.parse(configBundle.getFilePath()).getLastPathSegment();
+        title.setText(header.isEmpty()? "NULL TITLE" : header);
+        Log.d(TAG, "header: "+header);
 
-        GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surface_view);
-        mPanoViewWrapper = PanoViewWrapper.with(this)
+        GLSurfaceView glSurfaceView = (GLSurfaceView)findViewById(R.id.glSurfaceView);
+        mPanoViewWrapper = PanoViewWrapper.with(this) // 传入当前 activity 作为 context
                 .setConfig(configBundle)
                 .setGlSurfaceView(glSurfaceView)
                 .init();
-        if(configBundle.isRemoveHotspot())
+        if(configBundle.isRemoveHotspot()) {
             mPanoViewWrapper.removeDefaultHotSpot();
+        }
         glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                // 自动隐藏状态栏
                 mPanoUIController.startHideControllerTimer();
+                // bubble up
                 return mPanoViewWrapper.handleTouchEvent(event);
             }
         });
@@ -145,7 +163,7 @@ public class PanoPlayerActivity extends Activity {
 
                 @Override
                 public void updateInfo() {
-                    UIUtils.setBufferVisibility(mImgBufferAnim,false);
+                    UIUtils.setImageViewLoadingAnimationVisibility(mImageViewLoading,false);
                     mPanoUIController.startHideControllerTimer();
                     mPanoUIController.setInfo();
                 }

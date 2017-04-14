@@ -13,9 +13,9 @@ import java.io.InputStreamReader;
  * Created by Ads on 2016/6/25.
  */
 public class ShaderUtils {
-
     private static final String TAG = "ShaderUtils";
 
+    // 把 error 都打印出来
     public static void checkGlError(String label) {
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
@@ -24,7 +24,9 @@ public class ShaderUtils {
         }
     }
 
+    // 从 string of vert shader, pixel shader 创建 program
     public static int createProgram(String vertexSource, String fragmentSource) {
+        // 分别创建两种 shader，返回的是 id
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
         if (vertexShader == 0) {
             return 0;
@@ -36,10 +38,14 @@ public class ShaderUtils {
 
         int program = GLES20.glCreateProgram();
         if (program != 0) {
+            // 如果 shader 和 program 都创建成功
+            // 把 shader 绑定到 program 上
             GLES20.glAttachShader(program, vertexShader);
-            checkGlError("glAttachShader");
+            checkGlError("glAttaVertexchShader");
             GLES20.glAttachShader(program, pixelShader);
-            checkGlError("glAttachShader");
+            checkGlError("glAttachFragmentShader");
+            // 编译 program
+            // 传入的是 handle id，编译对应的 program。（Specifies the handle of the program object to be linked.）
             GLES20.glLinkProgram(program);
             int[] linkStatus = new int[1];
             GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);

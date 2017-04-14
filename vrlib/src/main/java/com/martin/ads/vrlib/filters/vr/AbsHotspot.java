@@ -1,19 +1,12 @@
 package com.martin.ads.vrlib.filters.vr;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.RectF;
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.martin.ads.vrlib.constant.AdjustingMode;
 import com.martin.ads.vrlib.filters.base.AbsFilter;
 import com.martin.ads.vrlib.math.PositionOrientation;
 import com.martin.ads.vrlib.object.Plane;
-import com.martin.ads.vrlib.programs.GLPassThroughProgram;
-import com.martin.ads.vrlib.textures.BitmapTexture;
-import com.martin.ads.vrlib.utils.MatrixUtils;
-import com.martin.ads.vrlib.utils.TextureUtils;
 
 /**
  * Created by Ads on 2017/3/11.
@@ -42,59 +35,42 @@ public abstract class AbsHotspot extends AbsFilter{
 
     public AbsHotspot(Context context) {
         this.context = context;
-        Matrix.setIdentityM(hotspotOrthoProjectionMatrix,0);
-        assumedScreenWidth=assumedScreenHeight=2;
+        Matrix.setIdentityM(hotspotOrthoProjectionMatrix, 0);
+        assumedScreenWidth = assumedScreenHeight = 2;
     }
 
     public void init(){
         imagePlane.resetTrianglesDataWithRect(
                 new RectF(
-                        -assumedScreenWidth/2,
-                        assumedScreenHeight/2,
-                        assumedScreenWidth/2,
-                        -assumedScreenHeight/2
+                        -assumedScreenWidth/2, +assumedScreenHeight/2,
+                        +assumedScreenWidth/2, -assumedScreenHeight/2
                     )
-                )
-                .scale(4.5f);
+                ).scale(4.5f);
     }
 
-    protected void updateMatrix(){
-        positionOrientation.updateModelMatrix(hotSpotModelMatrix);
-        Matrix.multiplyMM(resultMatrix,0,hotSpotModelMatrix,0,hotspotOrthoProjectionMatrix,0);
-        Matrix.multiplyMM(tmpMatrix, 0,modelMatrix , 0,resultMatrix , 0);
+    protected void update_MVP_Matrix(){
+        // 就是更新 mvp 矩阵
+        positionOrientation.flushModelMatrix(hotSpotModelMatrix);
+        // orth proj mat 初始为了 identity
+        Matrix.multiplyMM(resultMatrix, 0, hotSpotModelMatrix, 0, hotspotOrthoProjectionMatrix, 0);
+        Matrix.multiplyMM(tmpMatrix, 0, modelMatrix , 0, resultMatrix , 0);
         Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, tmpMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
     }
 
-    public void setViewMatrix(float[] viewMatrix) {
-        System.arraycopy(viewMatrix,
-                0,
-                this.viewMatrix,
-                0,
-                this.viewMatrix.length);
-    }
-
-    public void setProjectionMatrix(float[] projectionMatrix) {
-        System.arraycopy(projectionMatrix,0,this.projectionMatrix,0,this.projectionMatrix.length);
-    }
-
+    // 设置 各个 matrix: m, v, p
     public void setModelMatrix(float[] modelMatrix) {
-        System.arraycopy(modelMatrix,
-                0,
-                this.modelMatrix,
-                0,
-                this.modelMatrix.length);
+        System.arraycopy(modelMatrix, 0, this.modelMatrix, 0, this.modelMatrix.length);
+    }
+    public void setViewMatrix(float[] viewMatrix) {
+        System.arraycopy(viewMatrix, 0, this.viewMatrix, 0, this.viewMatrix.length);
+    }
+    public void setProjectionMatrix(float[] projectionMatrix) {
+        System.arraycopy(projectionMatrix, 0, this.projectionMatrix, 0, this.projectionMatrix.length);
     }
 
-    public void notifyOnPause(){
-
-    }
-
-    public void notifyOnResume(){
-
-    }
-
-    public void notifyOnDestroy(){
-
-    }
+    // 这厮什么鬼？
+    public void notifyOnPause(){ }
+    public void notifyOnResume(){ }
+    public void notifyOnDestroy(){ }
 }

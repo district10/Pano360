@@ -19,20 +19,21 @@ public class Pano360ConfigBundle implements Serializable{
 
     public Pano360ConfigBundle() {
         filePath=null;
-        videoHotspotPath=null;
-        imageModeEnabled=false;
-        planeModeEnabled=false;
-        windowModeEnabled=false;
-        removeHotspot=false;
+        videoHotspotPath = null;
+        imageModeEnabled = false;
+        planeModeEnabled = false;
+        windowModeEnabled = false;
+        removeHotspot = false;
     }
 
-    public static Pano360ConfigBundle newInstance(){
+    public static Pano360ConfigBundle NewInstance(){
         return new Pano360ConfigBundle();
     }
 
-    public void startEmbeddedActivity(Context context){
-        Intent intent=new Intent(context,PanoPlayerActivity.class);
-        intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE,this);
+    public void startEmbeddedActivity(Context context) {
+        // 用当前 activity 打开 pano player activity
+        Intent intent = new Intent(context, PanoPlayerActivity.class);
+        intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, this);
         context.startActivity(intent);
     }
 

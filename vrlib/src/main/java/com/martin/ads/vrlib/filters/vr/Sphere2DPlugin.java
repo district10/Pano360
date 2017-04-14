@@ -101,37 +101,44 @@ public class Sphere2DPlugin extends AbsFilter {
         sphere.uploadTexCoordinateBuffer(glSphereProgram.getTextureCoordinateHandle());
         sphere.uploadVerticesBuffer(glSphereProgram.getPositionHandle());
 
-        float currentDegree= (float) (Math.toDegrees(Math.atan(mScale))*2);
-        if(statusHelper.getPanoDisPlayMode()== PanoMode.DUAL_SCREEN)
+        float currentDegree= (float)(Math.toDegrees(Math.atan(mScale))*2);
+        if(statusHelper.getPanoDisPlayMode() == PanoMode.DUAL_SCREEN) {
+            // 双屏的话画一半
             Matrix.perspectiveM(projectionMatrix, 0, currentDegree, ratio/2, 1f, 500f);
-        else Matrix.perspectiveM(projectionMatrix, 0, currentDegree, ratio, 1f, 500f);
+        } else {
+            Matrix.perspectiveM(projectionMatrix, 0, currentDegree, ratio, 1f, 500f);
+        }
 
         Matrix.setIdentityM(modelMatrix, 0);
-        if (statusHelper.getPanoInteractiveMode()==PanoMode.MOTION){
+        if (statusHelper.getPanoInteractiveMode() == PanoMode.MOTION){
+            // 更新位置。这段不太懂……
             orientationHelper.recordRotation(rotationMatrix);
             System.arraycopy(rotationMatrix, 0, modelMatrix, 0, 16);
             orientationHelper.revertRotation(modelMatrix);
+        } else{
+            Matrix.rotateM(modelMatrix, 0, mDeltaY, 1.0f, 0.0f, 0.0f); // 上下的移动对应 x 轴旋转
+            Matrix.rotateM(modelMatrix, 0, mDeltaX, 0.0f, 1.0f, 0.0f); // 左右的移动对应 y 轴旋转
         }
-        else{
-            Matrix.rotateM(modelMatrix, 0, mDeltaY, 1.0f, 0.0f, 0.0f);
-            Matrix.rotateM(modelMatrix, 0, mDeltaX, 0.0f, 1.0f, 0.0f);
-        }
+        // f(a, b, c) -> a = b*c
         Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
 
+        // 更新一下 shader 里面的 uniform 变量
+        // location, count, transpose, value, offset
         GLES20.glUniformMatrix4fv(glSphereProgram.getMVPMatrixHandle(), 1, false, mMVPMatrix, 0);
-
         TextureUtils.bindTexture2D(textureId,GLES20.GL_TEXTURE0,glSphereProgram.getTextureSamplerHandle(),0);
 
         onPreDrawElements();
 
-        if (statusHelper.getPanoDisPlayMode()== PanoMode.DUAL_SCREEN){
-            GLES20.glViewport(0,0,surfaceWidth/2,surfaceHeight);
+        if (statusHelper.getPanoDisPlayMode() == PanoMode.DUAL_SCREEN){
+            // left
+            GLES20.glViewport(0, 0, surfaceWidth/2, surfaceHeight);
             sphere.draw();
-            GLES20.glViewport(surfaceWidth/2,0,surfaceWidth-surfaceWidth/2,surfaceHeight);
+            // right
+            GLES20.glViewport(surfaceWidth/2, 0, surfaceWidth-surfaceWidth/2, surfaceHeight);
             sphere.draw();
             drawHotSpot();
-            GLES20.glViewport(0,0,surfaceWidth/2,surfaceHeight);
+            GLES20.glViewport(0, 0, surfaceWidth/2, surfaceHeight);
             drawHotSpot();
         }else{
             GLES20.glViewport(0,0,surfaceWidth,surfaceHeight);
@@ -192,9 +199,10 @@ public class Sphere2DPlugin extends AbsFilter {
         return orientationHelper;
     }
 
-    //FIXME:code about hotspot is temporary
+    // FIXME:code about hotspot is temporary
     private void drawHotSpot(){
-        for(AbsHotspot hotSpot: hotspotList){
+        for(AbsHotspot hotSpot : hotspotList) {
+            // set m, v, p
             hotSpot.setModelMatrix(modelMatrix);
             hotSpot.setViewMatrix(viewMatrix);
             hotSpot.setProjectionMatrix(projectionMatrix);

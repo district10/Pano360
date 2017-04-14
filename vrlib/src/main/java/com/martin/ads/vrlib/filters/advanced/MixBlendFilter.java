@@ -40,7 +40,7 @@ abstract class MixBlendFilter extends AbsFilter {
         this.context=context;
         plane =new Plane(true);
         twoInputProgram=new GLTwoInputProgram(context, "filter/vsh/two_input.glsl",fragmentShaderPath);
-        mTexCoordinateBuffer2= BufferUtils.getFloatBuffer(PlaneTextureRotationUtils.TEXTURE_NO_ROTATION,0);
+        mTexCoordinateBuffer2= BufferUtils.AsFloatBuffer(PlaneTextureRotationUtils.TEXTURE_NO_ROTATION,0);
         this.mMixturePercent=mMixturePercent;
         bitmapTexture=new BitmapTexture();
     }

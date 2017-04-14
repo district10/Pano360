@@ -6,7 +6,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.opengl.GLES20;
-import android.util.Log;
 import android.view.Surface;
 
 import com.martin.ads.vrlib.constant.AdjustingMode;
@@ -84,7 +83,7 @@ public class VideoHotspot extends AbsHotspot  implements
         TextureUtils.bindTextureOES(glOESTexture.getTextureId(), GLES20.GL_TEXTURE1, glOESProgram.getUTextureSamplerHandle(),1);
         imagePlane.uploadTexCoordinateBuffer(glOESProgram.getTextureCoordinateHandle());
         imagePlane.uploadVerticesBuffer(glOESProgram.getPositionHandle());
-        updateMatrix();
+        update_MVP_Matrix();
         GLES20.glUniformMatrix4fv(glOESProgram.getMuSTMatrixHandle(), 1, false, mSTMatrix, 0);
         GLES20.glUniformMatrix4fv(glOESProgram.getMVPMatrixHandle(), 1, false, mMVPMatrix, 0);
         imagePlane.draw();

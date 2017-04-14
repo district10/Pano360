@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -27,11 +28,11 @@ import java.util.regex.Pattern;
  * Created by Dimorinny on 24.10.15.
  */
 public class FilePickerActivity extends AppCompatActivity implements DirectoryFragment.FileClickListener {
+    private static String TAG = "FilePickerActivity";
+
     public static final String ARG_START_PATH = "arg_start_path";
     public static final String ARG_CURRENT_PATH = "arg_current_path";
-
     public static final String ARG_FILTER = "arg_filter";
-
     public static final String STATE_START_PATH = "state_start_path";
     private static final String STATE_CURRENT_PATH = "state_current_path";
 
@@ -40,6 +41,11 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     private Toolbar mToolbar;
     private String mStartPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+    static {
+        Log.d(TAG, "Environment.getExternalStorageDirectory().getAbsolutePath(): "+
+                    Environment.getExternalStorageDirectory().getAbsolutePath());
+        // "/storage/emulated/0"
+    }
     private String mCurrentPath = mStartPath;
 
     private CompositeFilter mFilter;
@@ -63,12 +69,13 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     @SuppressWarnings("unchecked")
     private void initArguments() {
+        // getIntent() 可以传递信息
         if (getIntent().hasExtra(ARG_FILTER)) {
             Serializable filter = getIntent().getSerializableExtra(ARG_FILTER);
 
             if (filter instanceof Pattern) {
                 ArrayList<FileFilter> filters = new ArrayList<>();
-                filters.add(new PatternFilter((Pattern) filter, false));
+                filters.add(new PatternFilter((Pattern)filter, false));
                 mFilter = new CompositeFilter(filters);
             } else {
                 mFilter = (CompositeFilter) filter;
@@ -82,7 +89,6 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
         if (getIntent().hasExtra(ARG_CURRENT_PATH)) {
             String currentPath = getIntent().getStringExtra(ARG_CURRENT_PATH);
-
             if (currentPath.startsWith(mStartPath)) {
                 mCurrentPath = currentPath;
             }
@@ -101,25 +107,21 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
         try {
             Field f = mToolbar.getClass().getDeclaredField("mTitleTextView");
             f.setAccessible(true);
-
             TextView textView = (TextView) f.get(mToolbar);
             textView.setEllipsize(TextUtils.TruncateAt.START);
         } catch (Exception ignored) {}
-
         updateTitle();
     }
 
     private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
     }
-
     private void initFragment() {
         getFragmentManager().beginTransaction()
                 .add(R.id.container, DirectoryFragment.getInstance(
                         mStartPath, mFilter))
                 .commit();
     }
-
     private void updateTitle() {
         if (getSupportActionBar() != null) {
             String title = mCurrentPath.isEmpty() ? "/" : mCurrentPath;
@@ -149,13 +151,16 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     @Override
     public void onBackPressed() {
         FragmentManager fm = getFragmentManager();
-
         if (fm.getBackStackEntryCount() > 0) {
             fm.popBackStack();
             mCurrentPath = FileUtils.cutLastSegmentOfPath(mCurrentPath);
             updateTitle();
         } else {
-            setResult(RESULT_CANCELED);
+            Intent data = new Intent();
+            data.putExtra("TEST", "null path");
+            // setResult(RESULT_CANCELED, null);
+            setResult(RESULT_CANCELED, data);
+            // 把包含了信息的 intent 传回
             super.onBackPressed();
         }
     }
@@ -190,7 +195,15 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     private void setResultAndFinish(String filePath) {
         Intent data = new Intent();
         data.putExtra(RESULT_FILE_PATH, filePath);
+        data.putExtra("TEST", filePath);
+        // 把包含了信息的 intent 传回
         setResult(RESULT_OK, data);
+        //
+        // Call this when your activity is done and should be closed.  The
+        // ActivityResult is propagated back to whoever launched you via
+        // onActivityResult().
+        //
+        //  Finish()
         finish();
     }
 }

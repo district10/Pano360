@@ -63,7 +63,7 @@
     </RelativeLayout>
 
     <ImageView
-        android:id="@+id/img_full_screen"
+        android:id="@+id/fullScreen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/voide_tool_middle"

@@ -20,13 +20,13 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by Ads on 2016/6/25.
  */
-public class PanoRender
-        implements GLSurfaceView.Renderer {
+public class PanoRender implements GLSurfaceView.Renderer {
     public static String TAG = "PanoRender";
 
-    public static final int FILTER_MODE_NONE=0x0001;
-    public static final int FILTER_MODE_BEFORE_PROJECTION=0x0002;
-    public static final int FILTER_MODE_AFTER_PROJECTION=0x0003;
+    // flags
+    public static final int FILTER_MODE_NONE = 0x0001;
+    public static final int FILTER_MODE_BEFORE_PROJECTION = 0x0002;
+    public static final int FILTER_MODE_AFTER_PROJECTION = 0x0003;
 
     private StatusHelper statusHelper;
     private PanoMediaPlayerWrapper panoMediaPlayerWrapper;

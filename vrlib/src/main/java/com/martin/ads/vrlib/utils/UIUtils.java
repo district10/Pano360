@@ -6,8 +6,6 @@ import android.widget.ImageView;
 
 import com.martin.ads.vrlib.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,49 +36,35 @@ public class UIUtils
                                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
     }
 
-    public static void startImageAnim(ImageView Img, int anim)
-    {
-        Img.setVisibility(View.VISIBLE);
-        try
-        {
-            Img.setImageResource(anim);
-            AnimationDrawable animationDrawable = (AnimationDrawable) Img.getDrawable();
-            animationDrawable.start();
-        }
-        catch (ClassCastException e)
-        {
+    public static void startLoadingAnimation(ImageView imageView, int imageResource) {
+        imageView.setVisibility(View.VISIBLE);
+        try {
+            imageView.setImageResource(imageResource);
+            // animate loading...
+            ((AnimationDrawable)imageView.getDrawable()).start();
+        } catch (ClassCastException e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopImageAnim(ImageView Img)
-    {
-        try
-        {
-            AnimationDrawable animationDrawable = (AnimationDrawable) Img.getDrawable();
-            animationDrawable.stop();
-        }
-        catch (ClassCastException e)
-        {
+    public static void stopLoadingAnimation(ImageView imageView) {
+        try {
+            ((AnimationDrawable)imageView.getDrawable()).stop();
+        } catch (ClassCastException e) {
             e.printStackTrace();
         }
-        Img.setVisibility(View.GONE);
+        imageView.setVisibility(View.GONE);
     }
 
 
-    //缓冲动画控制
-    public static void setBufferVisibility(ImageView imgBuffer, boolean Visible)
-    {
-        if (Visible)
-        {
-            imgBuffer.setVisibility(View.VISIBLE);
-            startImageAnim(imgBuffer, R.drawable.loading);
-        }
-        else
-        {
-            stopImageAnim(imgBuffer);
-            imgBuffer.setVisibility(View.GONE);
+    // 缓冲动画控制
+    public static void setImageViewLoadingAnimationVisibility(ImageView imageView, boolean visible) {
+        if (visible) {
+            imageView.setVisibility(View.VISIBLE);
+            startLoadingAnimation(imageView, R.drawable.loading);
+        } else {
+            imageView.setVisibility(View.GONE);
+            stopLoadingAnimation(imageView);
         }
     }
-
 }

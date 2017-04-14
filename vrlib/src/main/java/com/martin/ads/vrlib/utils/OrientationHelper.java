@@ -61,14 +61,14 @@ public class OrientationHelper {
         // we need to Transpose it to match model
         // or just rotate in the reverse orientation
         // and reversed order
-        if (!rotationRecorded){
-            Matrix.transposeM(tmp,0,rotationMatrix,0);
-            SensorUtils.getOrientationFromRotationMatrix(tmp,initialRotation);
+        if (!rotationRecorded) {
+            Matrix.transposeM(tmp, 0, rotationMatrix, 0);
+            SensorUtils.getOrientationFromRotationMatrix(tmp, initialRotation);
             convertToDegrees(initialRotation);
-            rotationRecorded=true;
-        }else{
-            Matrix.transposeM(tmp,0,rotationMatrix,0);
-            SensorUtils.getOrientationFromRotationMatrix(tmp,currentRotation);
+            rotationRecorded = true;
+        } else {
+            Matrix.transposeM(tmp, 0, rotationMatrix, 0);
+            SensorUtils.getOrientationFromRotationMatrix(tmp, currentRotation);
             convertToDegrees(currentRotation);
         }
     }
@@ -112,9 +112,10 @@ public class OrientationHelper {
         }
     }
 
-    private void convertToDegrees(float[] s){
-        for(int i=0;i<s.length;i++)
-            s[i]= (float) Math.toDegrees(s[i]);
+    private void convertToDegrees(float[] s) {
+        for (int i = 0; i < s.length; i++) {
+            s[i] *= 180.0/Math.PI; // (float)Math.toDegrees(s[i]);
+        }
     }
     public void setRotationRecorded(boolean rotationRecorded) {
         this.rotationRecorded = rotationRecorded;

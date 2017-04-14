@@ -5,7 +5,6 @@ import android.content.Context;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.constant.PanoStatus;
 
-
 /**
  * Project: Pano360
  * Package: com.martin.ads.pano360.utils
@@ -24,26 +23,22 @@ public class StatusHelper {
         return context;
     }
 
+    // getters & setters
     public PanoStatus getPanoStatus() {
         return panoStatus;
     }
-
     public void setPanoStatus(PanoStatus panoStatus) {
         this.panoStatus = panoStatus;
     }
-
     public PanoMode getPanoDisPlayMode() {
         return panoDisPlayMode;
     }
-
     public void setPanoDisPlayMode(PanoMode panoDisPlayMode) {
         this.panoDisPlayMode = panoDisPlayMode;
     }
-
     public PanoMode getPanoInteractiveMode() {
         return panoInteractiveMode;
     }
-
     public void setPanoInteractiveMode(PanoMode panoInteractiveMode) {
         this.panoInteractiveMode = panoInteractiveMode;
     }

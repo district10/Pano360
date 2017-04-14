@@ -48,11 +48,11 @@ public class PlaneTextureRotationUtils {
             0.0f, 0.0f
     };
 
-    private PlaneTextureRotationUtils() {
-    }
+    //
+    private PlaneTextureRotationUtils() { }
 
-    public static float[] getRotation(final Rotation rotation, final boolean flipHorizontal,
-                                      final boolean flipVertical) {
+    private static float flip(final float i) { return 1.0f - i; }
+    public static float[] getRotation(final Rotation rotation, final boolean flipHorizontal, final boolean flipVertical) {
         float[] rotatedTex;
         switch (rotation) {
             case ROTATION_90:
@@ -86,10 +86,5 @@ public class PlaneTextureRotationUtils {
             };
         }
         return rotatedTex;
-    }
-
-
-    private static float flip(final float i) {
-        return 1.0f-i;
     }
 }

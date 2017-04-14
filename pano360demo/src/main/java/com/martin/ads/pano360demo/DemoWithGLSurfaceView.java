@@ -37,7 +37,7 @@ public class DemoWithGLSurfaceView extends AppCompatActivity {
     private void init(){
         Pano360ConfigBundle configBundle= (Pano360ConfigBundle) getIntent().getSerializableExtra(PanoPlayerActivity.CONFIG_BUNDLE);
         if(configBundle==null){
-            configBundle=Pano360ConfigBundle.newInstance();
+            configBundle=Pano360ConfigBundle.NewInstance();
         }
         configBundle.setRemoveHotspot(true);
         GLSurfaceView glSurfaceView=(GLSurfaceView) findViewById(R.id.surface_view);
@@ -48,7 +48,7 @@ public class DemoWithGLSurfaceView extends AppCompatActivity {
         glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //Logger.logTouchEvent(v,event);
+                // Logger.logTouchEvent(v,event);
                 return panoViewWrapper.handleTouchEvent(event);
             }
         });
@@ -71,5 +71,4 @@ public class DemoWithGLSurfaceView extends AppCompatActivity {
         super.onDestroy();
         panoViewWrapper.releaseResources();
     }
-
 }
