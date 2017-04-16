@@ -61,15 +61,17 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(int position) {
                 config.setImageModeEnabled(false);
                 config.setVideoHotspotPath(null);
+                config.setRemoveHotspot(false);
                 // planeMode 勾选了，加载的就是原图，而不是渲染到球体上的局部图
                 config.setPlaneModeEnabled( planeMode.isChecked() );
                 if (position == 0) {
                     // SHIT
                     // 图片就是这么传进来的
-                    config.setFilePath(Constants.getPanoImage(0) ).setRemoveHotspot(false);
+                    config.setImageModeEnabled(true).setFilePath(Constants.getPanoImage(0));
+                    // config.setImageModeEnabled(true).setFilePath("images/texture_a.jpg");
                     Log.d(TAG, "image path: "+config.getFilePath());
-                    // Intent intent = new Intent(HomeActivity.this, PanoPlayerActivity.class);
-                    // startActivityForResult(intent, Constants.RequestID_Pano);
+                    Intent intent = new Intent(HomeActivity.this, PanoPlayerActivity.class);
+                    startActivityForResult(intent, Constants.RequestID_Pano);
                     return;
                 } else if (position == 1) {
                     // intent 可以初始化的时候传入两个参数：当前 activity（context），新的 activity
@@ -142,6 +144,7 @@ public class HomeActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 if (!config.getFilePath().isEmpty()) {
                     Intent intent = new Intent(this, PanoPlayerActivity.class);
+                    // config.setImageModeEnabled(true).setFilePath("images/texture_b.jpg");
                     startActivityForResult(intent, Constants.RequestID_Pano);
                 } else {
                     Log.d(TAG, "quit pano because of null pano url");

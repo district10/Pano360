@@ -43,7 +43,6 @@ public class Pano360ConfigBundle implements Serializable{
 
     public String getFilePath() { return filePath; }
     public Pano360ConfigBundle setFilePath(String filePath) {
-        Log.d(TAG, "pano image path: "+filePath);
         this.filePath = filePath;
         return this;
     }

@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.martin.ads.vrlib.constant.GLEtc;
 
-
 /**
  * Created by Ads on 2016/11/19.
  */
@@ -63,7 +62,7 @@ public class TextureUtils {
     //bitmap will be recycled after calling this method
     public static int getTextureFromBitmap(Bitmap bitmap,int imageSize[]){
         final int[] textureObjectIds=new int[1];
-        GLES20.glGenTextures(1,textureObjectIds,0);
+        GLES20.glGenTextures(1, textureObjectIds, 0);
         if (textureObjectIds[0] == 0) {
             Log.d(TAG,"Failed at glGenTextures");
             return 0;
@@ -90,8 +89,8 @@ public class TextureUtils {
                 GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D,0,bitmap,0);
-        bitmap.recycle();
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0,bitmap,0);
+        // bitmap.recycle();
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,0);
         return textureObjectIds[0];

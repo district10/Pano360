@@ -40,8 +40,9 @@ public class Constants {
         panoImages.put( "images/texture_f.jpg", new Pair<Integer, Integer>(0,0) );
     }
     public static String getPanoImage(int index) {
-        if (true) {
-            return "images/texture_f.jpg";
+        boolean debug = false;
+        if (debug) {
+            return "images/texture_a.jpg";
         }
 		List<Map.Entry<String, Pair<Integer,Integer>>> list = new ArrayList<>(panoImages.entrySet());
         if (index < 0) {
