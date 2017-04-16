@@ -18,6 +18,8 @@ import java.util.List;
 public class Pano360ConfigBundle implements Serializable{
     private static final String TAG = "Pano360ConfigBundle";
 
+    public static Pano360ConfigBundle NewInstance(){ return new Pano360ConfigBundle(); }
+
     private String filePath = null;
     private String videoHotspotPath = null;
     private boolean imageModeEnabled = false;
@@ -39,64 +41,33 @@ public class Pano360ConfigBundle implements Serializable{
         // hotspots
     }
 
-    public static Pano360ConfigBundle NewInstance(){
-        return new Pano360ConfigBundle();
-    }
-
-    public void startEmbeddedActivity(Context context) {
-        // 用当前 activity 打开 pano player activity
-        Intent intent = new Intent(context, PanoPlayerActivity.class);
-        // configBundle = (Pano360ConfigBundle)getIntent().getSerializableExtra(CONFIG_BUNDLE);
-        intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, this);
-        context.startActivity(intent);
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
+    public String getFilePath() { return filePath; }
     public Pano360ConfigBundle setFilePath(String filePath) {
-        this.filePath = filePath;
         Log.d(TAG, "pano image path: "+filePath);
+        this.filePath = filePath;
         return this;
     }
-
-    public String getVideoHotspotPath() {
-        return videoHotspotPath;
-    }
+    public String getVideoHotspotPath() { return videoHotspotPath; }
     public Pano360ConfigBundle setVideoHotspotPath(String videoHotspotPath) {
         this.videoHotspotPath = videoHotspotPath;
         return this;
     }
-
-    public boolean isImageModeEnabled() {
-        return imageModeEnabled;
-    }
+    public boolean isImageModeEnabled() { return imageModeEnabled; }
     public Pano360ConfigBundle setImageModeEnabled(boolean imageModeEnabled) {
         this.imageModeEnabled = imageModeEnabled;
         return this;
     }
-
-    public boolean isPlaneModeEnabled() {
-        return planeModeEnabled;
-    }
+    public boolean isPlaneModeEnabled() { return planeModeEnabled; }
     public Pano360ConfigBundle setPlaneModeEnabled(boolean planeModeEnabled) {
         this.planeModeEnabled = planeModeEnabled;
         return this;
     }
-
-    public boolean isWindowModeEnabled() {
-        return windowModeEnabled;
-    }
-
-    public boolean isRemoveHotspot() {
-        return removeHotspot;
-    }
-
+    public boolean isWindowModeEnabled() { return windowModeEnabled; }
+    public boolean isRemoveHotspot() { return removeHotspot; }
     public Pano360ConfigBundle setRemoveHotspot(boolean removeHotspot) {
         this.removeHotspot = removeHotspot;
         return this;
     }
-
     public int getLon() { return lon; }
     public Pano360ConfigBundle setLon(int lon) { this.lon = lon; return this; }
     public int getLat() { return lat; }

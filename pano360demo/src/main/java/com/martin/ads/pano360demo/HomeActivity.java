@@ -35,15 +35,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         config = Constants.config;
 
         // 强制横屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         // 强制全屏
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -68,9 +66,10 @@ public class HomeActivity extends AppCompatActivity {
                 if (position == 0) {
                     // SHIT
                     // 图片就是这么传进来的
-                    Constants.config.setFilePath(Constants.getPanoImage(0) ).setRemoveHotspot(false);
-                    Intent intent = new Intent(HomeActivity.this, PanoPlayerActivity.class);
-                    startActivityForResult(intent, Constants.RequestID_Pano);
+                    config.setFilePath(Constants.getPanoImage(0) ).setRemoveHotspot(false);
+                    Log.d(TAG, "image path: "+config.getFilePath());
+                    // Intent intent = new Intent(HomeActivity.this, PanoPlayerActivity.class);
+                    // startActivityForResult(intent, Constants.RequestID_Pano);
                     return;
                 } else if (position == 1) {
                     // intent 可以初始化的时候传入两个参数：当前 activity（context），新的 activity
@@ -141,7 +140,7 @@ public class HomeActivity extends AppCompatActivity {
             // }
             // intent.putExtra(PanoPlayerActivity.CONFIG_BUNDLE, Constants.config);
             if (resultCode == RESULT_OK) {
-                if (!Constants.config.getFilePath().isEmpty()) {
+                if (!config.getFilePath().isEmpty()) {
                     Intent intent = new Intent(this, PanoPlayerActivity.class);
                     startActivityForResult(intent, Constants.RequestID_Pano);
                 } else {
