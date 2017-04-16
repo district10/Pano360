@@ -1,7 +1,6 @@
 package com.martin.ads.vrlib.ui;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -13,15 +12,19 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.martin.ads.vrlib.PanoMediaPlayerWrapper;
 import com.martin.ads.vrlib.PanoViewWrapper;
 import com.martin.ads.vrlib.R;
+import com.martin.ads.vrlib.constant.Constants;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.constant.PanoStatus;
 import com.martin.ads.vrlib.filters.advanced.FilterType;
+import com.martin.ads.vrlib.utils.StatusHelper;
 import com.martin.ads.vrlib.utils.UIUtils;
+
+import java.util.Arrays;
 
 /**
  * Created by Ads on 2016/11/10.
@@ -32,11 +35,11 @@ public class PanoPlayerActivity extends Activity {
 
     public static final String TAG = "PanoPlayerActivity";
 
-    public static final String CONFIG_BUNDLE = "configBundle";
+    public static final String CONFIG_BUNDLE = "config";
     private PanoUIController mPanoUIController;
     private PanoViewWrapper mPanoViewWrapper;
     private ImageView mImageViewLoading;
-    private Pano360ConfigBundle configBundle;
+    private Pano360ConfigBundle config;
 
     // bundle 是啥？
     // 就跟 Qt 的 QVariant 类似，
@@ -55,41 +58,47 @@ public class PanoPlayerActivity extends Activity {
         // - 下面：进度条
         // - 整个：gl viewer
         setContentView(R.layout.player_activity_layout);
+        // init view
+        ((ToggleButton)findViewById(R.id.gyro_btn)).setChecked(Constants.config.gyroOrTouch != PanoMode.Gyroscope); // fixed when not use gyro
+        ((ToggleButton)findViewById(R.id.dualScreen_btn)).setChecked(Constants.config.dualOrSingle == PanoMode.Dual); // highlight when dual
+
+        // 获取打包了的配置
+        // config = (Pano360ConfigBundle)getIntent().getSerializableExtra(CONFIG_BUNDLE);
+        config = Constants.config;
+        if(config == null) {
+            config = Pano360ConfigBundle.NewInstance();
+        }
+
         init();
     }
 
     private void init(){
-        // 获取打包了的配置
-        configBundle = (Pano360ConfigBundle)getIntent().getSerializableExtra(CONFIG_BUNDLE);
-        if(configBundle == null) {
-            configBundle = Pano360ConfigBundle.NewInstance();
-        }
-
         // 从来没有显示过……
-        findViewById(R.id.fullScreen).setVisibility(configBundle.isWindowModeEnabled() ? View.VISIBLE : View.GONE);
+        findViewById(R.id.fullScreen).setVisibility(config.isWindowModeEnabled() ? View.VISIBLE : View.GONE);
 
         mImageViewLoading = (ImageView)findViewById(R.id.activity_imgBuffer);
         // if image enabled, show loading..., else, show
-        UIUtils.setImageViewLoadingAnimationVisibility(mImageViewLoading, !configBundle.isImageModeEnabled());
+        UIUtils.setImageViewLoadingAnimationVisibility(mImageViewLoading, !config.isImageModeEnabled());
         // 控制的部分就是页面上下两个控件（组）
         // TODO: 添加新的控件（左/右侧）
         mPanoUIController = new PanoUIController(
                 (RelativeLayout)findViewById(R.id.player_toolbar_control),
                 (RelativeLayout)findViewById(R.id.player_toolbar_progress),
-                this, configBundle.isImageModeEnabled());
+                this, config.isImageModeEnabled());
 
+        // mPanoViewWrapper.getStatusHelper().setPanoInteractiveMode(config.gyroOrTouch);
         TextView title = (TextView)findViewById(R.id.video_title);
 
-        String header = Uri.parse(configBundle.getFilePath()).getLastPathSegment();
+        String header = Uri.parse(config.getFilePath()).getLastPathSegment();
         title.setText(header.isEmpty()? "NULL TITLE" : header);
         Log.d(TAG, "header: "+header);
 
         GLSurfaceView glSurfaceView = (GLSurfaceView)findViewById(R.id.glSurfaceView);
-        mPanoViewWrapper = PanoViewWrapper.with(this) // 传入当前 activity 作为 context
-                .setConfig(configBundle)
+        mPanoViewWrapper = PanoViewWrapper.NewInstance(this) // 传入当前 activity 作为 context
+                .setConfig(config)
                 .setGlSurfaceView(glSurfaceView)
                 .init();
-        if(configBundle.isRemoveHotspot()) {
+        if(config.isRemoveHotspot()) {
             mPanoViewWrapper.removeDefaultHotSpot();
         }
         glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
@@ -113,15 +122,21 @@ public class PanoPlayerActivity extends Activity {
                 // mPanoViewWrapper.clearHotSpot();
                 // shit
                 // TODO change to texture1
+                // changeDisPlayMode();
+                // ToggleButton tbDualOrSingle = (ToggleButton)findViewById(R.id.dualScreen_btn);
+                // if (tbDualOrSingle != null) { tbDualOrSingle.setChecked(true); }
             }
             @Override
             public void requestDebug2() {
                 // TODO change to texture2
                 // mPanoViewWrapper.getRenderer().switchTexture();
-                Intent data = new Intent();
-                data.putExtra("NEW_TEXTURE", "images/texture2.jpg");
+                // Intent data = new Intent(); data.putExtra("NEW_TEXTURE", "images/texture2.jpg");
                 // 把包含了信息的 intent 传回
-                setResult(RESULT_OK, data);
+                // setResult(RESULT_OK, data);
+                // Constants.panoImages.forEach();
+                // Constants.panoImages.entrySet();
+                Constants.config.setFilePath( Constants.getPanoImage(-1) );
+                setResult(RESULT_OK);
                 finish();
             }
             @Override
@@ -136,16 +151,30 @@ public class PanoPlayerActivity extends Activity {
 
             @Override
             public void changeDisPlayMode() {
-                if (mPanoViewWrapper.getStatusHelper().getPanoDisPlayMode()==PanoMode.DUAL_SCREEN)
-                    mPanoViewWrapper.getStatusHelper().setPanoDisPlayMode(PanoMode.SINGLE_SCREEN);
-                else mPanoViewWrapper.getStatusHelper().setPanoDisPlayMode(PanoMode.DUAL_SCREEN);
+                StatusHelper sh = mPanoViewWrapper.getStatusHelper();
+                ToggleButton tb = (ToggleButton)findViewById(R.id.dualScreen_btn);
+                if (tb == null || sh == null) { return; }
+                if (tb.isChecked()) {
+                    // sh.setPanoDisPlayMode(PanoMode.Dual);
+                    Constants.config.dualOrSingle = PanoMode.Dual;
+                } else {
+                    // sh.setPanoDisPlayMode(PanoMode.Single);
+                    Constants.config.dualOrSingle = PanoMode.Single;
+                }
             }
 
             @Override
             public void changeInteractiveMode() {
-                if (mPanoViewWrapper.getStatusHelper().getPanoInteractiveMode()==PanoMode.MOTION)
-                    mPanoViewWrapper.getStatusHelper().setPanoInteractiveMode(PanoMode.TOUCH);
-                else mPanoViewWrapper.getStatusHelper().setPanoInteractiveMode(PanoMode.MOTION);
+                StatusHelper sh = mPanoViewWrapper.getStatusHelper();
+                ToggleButton tb = (ToggleButton)findViewById(R.id.gyro_btn);
+                if (tb == null || sh == null) { return; }
+                if (tb.isChecked()) {
+                    // sh.setPanoInteractiveMode(PanoMode.Touch);
+                    Constants.config.gyroOrTouch = PanoMode.Touch;
+                } else {
+                    // sh.setPanoInteractiveMode(PanoMode.Gyroscope);
+                    Constants.config.gyroOrTouch = PanoMode.Gyroscope;
+                }
             }
 
             @Override
@@ -179,7 +208,7 @@ public class PanoPlayerActivity extends Activity {
         });
         mPanoViewWrapper.getTouchHelper().setPanoUIController(mPanoUIController);
 
-        if(!configBundle.isImageModeEnabled()){
+        if(!config.isImageModeEnabled()){
             mPanoViewWrapper.getMediaPlayer().setPlayerCallback(new PanoMediaPlayerWrapper.PlayerCallback() {
                 @Override
                 public void updateProgress() {

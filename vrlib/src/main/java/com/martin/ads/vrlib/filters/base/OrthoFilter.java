@@ -3,6 +3,7 @@ package com.martin.ads.vrlib.filters.base;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.martin.ads.vrlib.constant.Constants;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.object.Plane;
 import com.martin.ads.vrlib.programs.GLPassThroughProgram;
@@ -48,8 +49,8 @@ public class OrthoFilter extends AbsFilter {
     public void onPreDrawElements() {
         super.onPreDrawElements();
         int targetSurfaceWidth=surfaceWidth;
-        if (statusHelper.getPanoDisPlayMode()== PanoMode.DUAL_SCREEN){
-            targetSurfaceWidth/=2;
+        if (Constants.config.dualOrSingle == PanoMode.Dual) {
+            targetSurfaceWidth /= 2;
         }
         MatrixUtils.updateProjection(
                 videoWidth,
@@ -73,7 +74,7 @@ public class OrthoFilter extends AbsFilter {
     public void onDrawFrame(int textureId) {
         onPreDrawElements();
         TextureUtils.bindTexture2D(textureId, GLES20.GL_TEXTURE0,glPassThroughProgram.getTextureSamplerHandle(),0);
-        if (statusHelper.getPanoDisPlayMode()== PanoMode.DUAL_SCREEN){
+        if (Constants.config.dualOrSingle == PanoMode.Dual) {
             GLES20.glViewport(0,0,surfaceWidth/2,surfaceHeight);
             plane.draw();
             GLES20.glViewport(surfaceWidth/2,0,surfaceWidth-surfaceWidth/2,surfaceHeight);

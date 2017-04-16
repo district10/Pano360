@@ -8,8 +8,8 @@ import com.martin.ads.vrlib.utils.ShaderUtils;
 /**
  * Created by Ads on 2016/11/8.
  * Translate YUV420SP(NV21) to RGBA
- * it may also work with YUV420P(YV12)
- * with STM/OES
+ * it may also work NewInstance YUV420P(YV12)
+ * NewInstance STM/OES
  */
 public class GLOESProgram extends GLAbsProgram{
 

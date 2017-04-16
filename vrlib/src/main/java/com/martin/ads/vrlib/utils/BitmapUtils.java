@@ -96,7 +96,7 @@ public class BitmapUtils {
         BufferedOutputStream bos = null;
         try {
             int[] pixelArray = buf.array();
-            // rotate 180 deg with x axis because y is reversed
+            // rotate 180 deg NewInstance x axis because y is reversed
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     pixelMirroredArray[(height - i - 1) * width + j] = pixelArray[i * width + j];

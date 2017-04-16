@@ -8,7 +8,7 @@ import com.martin.ads.vrlib.utils.ShaderUtils;
 
 /**
  * Created by Ads on 2016/11/19.
- * with Sampler2D
+ * NewInstance Sampler2D
  */
 
 public class GLSimpleProgram extends GLAbsProgram {

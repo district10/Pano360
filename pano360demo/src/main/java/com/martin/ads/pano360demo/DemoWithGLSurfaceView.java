@@ -41,7 +41,7 @@ public class DemoWithGLSurfaceView extends AppCompatActivity {
         }
         configBundle.setRemoveHotspot(true);
         GLSurfaceView glSurfaceView=(GLSurfaceView) findViewById(R.id.surface_view);
-        panoViewWrapper =PanoViewWrapper.with(this)
+        panoViewWrapper =PanoViewWrapper.NewInstance(this)
                 .setConfig(configBundle)
                 .setGlSurfaceView(glSurfaceView)
                 .init();

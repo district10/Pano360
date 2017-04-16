@@ -27,7 +27,7 @@ public class TextureUtils {
             //  Actually a very good analogy :)
             //
             //  >   so, what GL_TEXTURE0 and glActiveTexture are?
-            //  Think about a wall with 【multiple picture frames】,
+            //  Think about a wall NewInstance 【multiple picture frames】,
             //  the first frame being labeled 【GL_TEXTURE0】,
             //  the second 【GL_TEXTURE1】 and so on.
             //  其实就是一个一个的 frame 啊。

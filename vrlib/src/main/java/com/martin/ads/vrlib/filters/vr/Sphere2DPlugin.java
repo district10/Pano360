@@ -2,10 +2,9 @@ package com.martin.ads.vrlib.filters.vr;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.martin.ads.vrlib.SensorEventHandler;
+import com.martin.ads.vrlib.constant.Constants;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.filters.base.AbsFilter;
 import com.martin.ads.vrlib.object.Sphere;
@@ -54,8 +53,13 @@ public class Sphere2DPlugin extends AbsFilter {
 
     public Sphere2DPlugin(StatusHelper statusHelper) {
         this.statusHelper = statusHelper;
-        mDeltaX = -90; // 水平旋转 90 度，lon
-        mDeltaY = 0;   // 保持水平，lat
+
+
+        // mDeltaX = -90; // 水平旋转 90 度，lon
+        // mDeltaY = 0;   // 保持水平，lat
+        mDeltaX = Constants.config.getLon();
+        mDeltaY = Constants.config.getLat();
+
         mScale = 1;
         sphere = new Sphere(18, 16, 32);
         sensorEventHandler = new SensorEventHandler();
@@ -111,7 +115,8 @@ public class Sphere2DPlugin extends AbsFilter {
         sphere.uploadVerticesBuffer(glSphereProgram.getPositionHandle());
 
         float currentDegree = (float)(Math.toDegrees(Math.atan(mScale))*2);
-        if(statusHelper.getPanoDisPlayMode() == PanoMode.DUAL_SCREEN) {
+        // if(statusHelper.getPanoDisPlayMode() == PanoMode.Dual) {
+        if(Constants.config.dualOrSingle == PanoMode.Dual) {
             // 双屏的话画一半
             Matrix.perspectiveM(projectionMatrix, 0, currentDegree, ratio/2, 1f, 500f);
         } else {
@@ -119,7 +124,8 @@ public class Sphere2DPlugin extends AbsFilter {
         }
 
         Matrix.setIdentityM(modelMatrix, 0);
-        if (statusHelper.getPanoInteractiveMode() == PanoMode.MOTION){
+        // if (statusHelper.getPanoInteractiveMode() == PanoMode.Gyroscope){
+        if (Constants.config.gyroOrTouch == PanoMode.Gyroscope) {
             // 陀螺仪用这个
             orientationHelper.recordRotation(rotationMatrix);
             System.arraycopy(rotationMatrix, 0, modelMatrix, 0, 16);
@@ -155,7 +161,7 @@ public class Sphere2DPlugin extends AbsFilter {
 
         onPreDrawElements();
 
-        if (statusHelper.getPanoDisPlayMode() == PanoMode.DUAL_SCREEN){
+        if (Constants.config.dualOrSingle == PanoMode.Dual){
             // left
             GLES20.glViewport(0, 0, surfaceWidth/2, surfaceHeight);
             sphere.draw();

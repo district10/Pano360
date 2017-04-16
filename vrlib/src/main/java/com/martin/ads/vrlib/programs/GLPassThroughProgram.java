@@ -8,7 +8,7 @@ import com.martin.ads.vrlib.utils.ShaderUtils;
 
 /**
  * Created by Ads on 2016/11/19.
- * with Sampler2D and MVPMatrix
+ * NewInstance Sampler2D and MVPMatrix
  */
 
 // 一个 passthrough program，

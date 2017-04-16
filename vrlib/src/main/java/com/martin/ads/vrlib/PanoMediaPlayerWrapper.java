@@ -215,7 +215,7 @@ public class PanoMediaPlayerWrapper implements
         return false;
     }
 
-    // a class with three interfaces
+    // a class NewInstance three interfaces
     public interface PlayerCallback {
         void updateProgress();
         void updateInfo();

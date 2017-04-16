@@ -4,14 +4,11 @@ import android.content.res.Resources;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.widget.Toast;
 
+import com.martin.ads.vrlib.constant.Constants;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.ui.PanoUIController;
 import com.martin.ads.vrlib.utils.StatusHelper;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 // 用来监控
 
@@ -56,7 +53,7 @@ public class TouchHelper {
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 // 触屏移动
-                if (statusHelper.getPanoInteractiveMode() == PanoMode.TOUCH) {
+                if (Constants.config.gyroOrTouch == PanoMode.Touch) {
                     mRenderer.getSpherePlugin().setDeltaX(mRenderer.getSpherePlugin().getDeltaX() + distanceX / sDensity * sDamping);
                     mRenderer.getSpherePlugin().setDeltaY(mRenderer.getSpherePlugin().getDeltaY() + distanceY / sDensity * sDamping);
                     // String info = e1.toString() + ",\n" + e2.toString() + ",\n" + Float.toString(distanceX) + ",\n" + Float.toString(distanceY);
@@ -66,10 +63,10 @@ public class TouchHelper {
             }
         });
 
-        scaleGestureDetector=new ScaleGestureDetector(statusHelper.getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
+        scaleGestureDetector = new ScaleGestureDetector(statusHelper.getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
-                float scaleFactor=detector.getScaleFactor();
+                float scaleFactor = detector.getScaleFactor();
                 mRenderer.getSpherePlugin().updateScale(scaleFactor);
                 return true;
             }
@@ -82,17 +79,16 @@ public class TouchHelper {
 
             @Override
             public void onScaleEnd(ScaleGestureDetector detector) {
-
             }
         });
     }
 
     public boolean handleTouchEvent(MotionEvent event) {
-        //int action = event.getActionMasked();
-        //也可以通过event.getPointerCount()来判断是双指缩放还是单指触控
-        boolean ret=scaleGestureDetector.onTouchEvent(event);
+        // int action = event.getActionMasked();
+        // 也可以通过 event.getPointerCount() 来判断是双指缩放还是单指触控
+        boolean ret = scaleGestureDetector.onTouchEvent(event);
         if (!scaleGestureDetector.isInProgress()){
-            ret=gestureDetector.onTouchEvent(event);
+            ret = gestureDetector.onTouchEvent(event);
         }
         return ret;
     }

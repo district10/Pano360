@@ -8,6 +8,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.view.MotionEvent;
 
+import com.martin.ads.vrlib.constant.Constants;
 import com.martin.ads.vrlib.constant.PanoMode;
 import com.martin.ads.vrlib.constant.PanoStatus;
 import com.martin.ads.vrlib.filters.vr.AbsHotspot;
@@ -25,44 +26,38 @@ import java.util.List;
 public class PanoViewWrapper {
     public static String TAG = "PanoViewWrapper";
 
-    // it's a type (class), must implement a function called 'renderImmediately'
-    public interface RenderCallBack {
-        void renderImmediately();
-    }
-
+    private Pano360ConfigBundle config = null;
     private PanoRender mRenderer;
     private PanoMediaPlayerWrapper mPnoVideoPlayer;
     private StatusHelper statusHelper;
     private GLSurfaceView glSurfaceView;
     private TouchHelper touchHelper;
-
-    private boolean imageMode;
-    private String videoHotspotPath;
-    private boolean planeMode;
-
     private Context context;
-    private String filePath;
-    private List<AbsHotspot> hotspotList;
+
+    // it's a type (class), must implement a function called 'renderImmediately'
+    public interface RenderCallBack {
+        void renderImmediately();
+    }
 
     private PanoViewWrapper(Context context) {
         this.context = context;
+        this.config = Constants.config;
     }
-
-    public static PanoViewWrapper with(Context context) {
+    public static PanoViewWrapper NewInstance(Context context) {
         return new PanoViewWrapper(context);
     }
 
-    public PanoViewWrapper init(){
-        Uri uri = Uri.parse(filePath);
+    public PanoViewWrapper init() {
+        Uri uri = Uri.parse(config.getFilePath());
         init(context, uri);
         return this;
     }
 
     public PanoViewWrapper setConfig(Pano360ConfigBundle configBundle){
-        filePath = configBundle.getFilePath();
-        videoHotspotPath = configBundle.getVideoHotspotPath();
-        planeMode = configBundle.isPlaneModeEnabled();
-        imageMode = configBundle.isImageModeEnabled();
+        // filePath = configBundle.getFilePath();
+        // videoHotspotPath = configBundle.getVideoHotspotPath();
+        // planeMode = configBundle.isPlaneModeEnabled();
+        // imageMode = configBundle.isImageModeEnabled();
         return this;
     }
 
@@ -71,10 +66,10 @@ public class PanoViewWrapper {
         // OpenGL ES 2
         glSurfaceView.setEGLContextClientVersion(2);
 
-        // 专门用来记录各个播放器的状态
+        // 专门用来记录视频播放器的状态
         statusHelper = new StatusHelper(context);
 
-        if(!imageMode){
+        if(!Constants.config.isImageModeEnabled()){
             mPnoVideoPlayer = new PanoMediaPlayerWrapper();
             mPnoVideoPlayer.setStatusHelper(statusHelper);
             // 打开视频
@@ -98,13 +93,15 @@ public class PanoViewWrapper {
         mRenderer = PanoRender.newInstance()
                 .setStatusHelper(statusHelper)
                 .setPanoMediaPlayerWrapper(mPnoVideoPlayer)
-                .setImageMode(imageMode)
-                .setPlaneMode(planeMode)
+                .setImageMode(config.isImageModeEnabled())
+                .setPlaneMode(config.isPlaneModeEnabled())
                 .setFilePath(uri.toString())
                 .setFilterMode(PanoRender.FILTER_MODE_AFTER_PROJECTION)
                 .init();
 
-        hotspotList = new ArrayList<>();
+
+        List<AbsHotspot> hotspotList = config.hotspotList;
+        String videoHotspotPath = config.getVideoHotspotPath();
         if(videoHotspotPath != null && !videoHotspotPath.isEmpty()){
             // 视频
             hotspotList.add(VideoHotspot.with(statusHelper.getContext())
@@ -154,9 +151,6 @@ public class PanoViewWrapper {
             glSurfaceView.setPreserveEGLContextOnPause(true);
         }
 
-        statusHelper.setPanoDisPlayMode(PanoMode.DUAL_SCREEN);
-        statusHelper.setPanoInteractiveMode(PanoMode.MOTION);
-
         touchHelper = new TouchHelper(statusHelper, mRenderer);
         // init 完毕
     }
@@ -167,7 +161,7 @@ public class PanoViewWrapper {
             mPnoVideoPlayer.pause();
         }
         // for (int i = 0; i < hotspotList.size(); i++) { }
-        for (AbsHotspot hotspot : hotspotList) {
+        for (AbsHotspot hotspot : config.hotspotList) {
             hotspot.notifyOnPause();
         }
     }
@@ -179,15 +173,13 @@ public class PanoViewWrapper {
                 mPnoVideoPlayer.start();
             }
         }
-        for(AbsHotspot hotspot : hotspotList) {
+        for(AbsHotspot hotspot : config.hotspotList) {
             hotspot.notifyOnResume();
         }
     }
 
     public void releaseResources() {
-        for(AbsHotspot hotspot : hotspotList) {
-            hotspot.notifyOnDestroy();
-        }
+        for(AbsHotspot hotspot : config.hotspotList) { hotspot.notifyOnDestroy(); }
         if(mPnoVideoPlayer != null) {
             mPnoVideoPlayer.releaseResource();
             mPnoVideoPlayer = null;
@@ -223,14 +215,14 @@ public class PanoViewWrapper {
     }
 
     public boolean clearHotSpot() {
-        if(hotspotList == null) {
+        if(config.hotspotList == null) {
             return false;
         }
-        hotspotList.clear();
+        config.hotspotList.clear();
         return true;
     }
 
-    //TODO:add real interface to control hot spot
+    // TODO:add real interface to control hot spot
     // & head pose control
     public PanoViewWrapper removeDefaultHotSpot() {
         clearHotSpot();
